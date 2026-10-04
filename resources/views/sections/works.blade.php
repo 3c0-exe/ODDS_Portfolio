@@ -75,7 +75,9 @@ $workItems = isset($works) && count($works) > 0 ? $works : collect([
             @if(!empty($coverSrc))
             <!-- Clipped 16:9 Image Body from Admin -->
             <g clip-path="url(#folder-clip-{{ $item->id ?? $index }})">
-              <image href="{{ $coverSrc }}" xlink:href="{{ $coverSrc }}" x="0" y="0" width="406" height="246" preserveAspectRatio="xMidYMid slice" class="transition-transform duration-300 ease-out group-hover:scale-105 origin-center" />
+              <foreignObject x="0" y="0" width="406" height="246" class="transition-transform duration-300 ease-out group-hover:scale-105 origin-center">
+                <img xmlns="http://www.w3.org/1999/xhtml" src="{{ $coverSrc }}" alt="{{ $item->title }} preview" loading="lazy" decoding="async" width="406" height="246" style="display: block; width: 100%; height: 100%; object-fit: cover;">
+              </foreignObject>
               <rect x="0" y="0" width="406" height="246" fill="#000000" class="opacity-10 group-hover:opacity-0 transition-opacity duration-300 pointer-events-none" />
             </g>
             @endif

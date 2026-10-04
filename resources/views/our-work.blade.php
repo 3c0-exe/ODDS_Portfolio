@@ -765,8 +765,8 @@ $startingItem = $workItems->get($startIndex) ?: $workItems->first();
                                     @if(!empty($videoSrc))
                                         {{-- Priority 1: Showcase Video --}}
                                         <div class="stage-artifact stage-video-box">
-                                            <video class="stage-video-el" muted loop playsinline autoplay preload="metadata">
-                                                <source src="{{ $videoSrc }}" type="video/mp4">
+                                            <video class="stage-video-el" muted loop playsinline preload="none">
+                                                <source data-src="{{ $videoSrc }}" type="video/mp4">
                                             </video>
                                             <div class="stage-media-pill">
                                                 <span class="stage-pulse-dot"></span>
@@ -778,14 +778,14 @@ $startingItem = $workItems->get($startIndex) ?: $workItems->first();
                                         <div class="stage-artifact stage-collage-box">
                                             @foreach(array_slice($galleryImages, 0, 4) as $gIdx => $gImg)
                                                 <div class="stage-artifact stage-collage-item pos-{{ $gIdx + 1 }}">
-                                                    <img src="{{ $gImg }}" alt="{{ $itemTitle }} artifact {{ $gIdx + 1 }}">
+                                                    <img @if($isInitialActive || $isInitialNext || $isInitialPrev) src="{{ $gImg }}" @else data-src="{{ $gImg }}" @endif loading="{{ $isInitialActive ? 'eager' : 'lazy' }}" decoding="async" alt="{{ $itemTitle }} artifact {{ $gIdx + 1 }}">
                                                 </div>
                                             @endforeach
                                         </div>
                                     @elseif(!empty($coverSrc))
                                         {{-- Priority 3: Centered Cover Image Artifact --}}
                                         <div class="stage-artifact stage-single-box">
-                                            <img src="{{ $coverSrc }}" alt="{{ $itemTitle }}">
+                                            <img @if($isInitialActive || $isInitialNext || $isInitialPrev) src="{{ $coverSrc }}" @else data-src="{{ $coverSrc }}" @endif loading="{{ $isInitialActive ? 'eager' : 'lazy' }}" decoding="async" alt="{{ $itemTitle }}">
                                         </div>
                                     @else
                                         {{-- Fallback: Monogram --}}
@@ -812,8 +812,8 @@ $startingItem = $workItems->get($startIndex) ?: $workItems->first();
                             {{-- Visual Artifact Only (Fallback when no story/body content exists) --}}
                             @if(!empty($videoSrc))
                                 <div class="stage-artifact stage-video-box">
-                                    <video class="stage-video-el" muted loop playsinline autoplay preload="metadata">
-                                        <source src="{{ $videoSrc }}" type="video/mp4">
+                                    <video class="stage-video-el" muted loop playsinline preload="none">
+                                        <source data-src="{{ $videoSrc }}" type="video/mp4">
                                     </video>
                                     <div class="stage-media-pill">
                                         <span class="stage-pulse-dot"></span>
@@ -824,13 +824,13 @@ $startingItem = $workItems->get($startIndex) ?: $workItems->first();
                                 <div class="stage-artifact stage-collage-box">
                                     @foreach(array_slice($galleryImages, 0, 4) as $gIdx => $gImg)
                                         <div class="stage-artifact stage-collage-item pos-{{ $gIdx + 1 }}">
-                                            <img src="{{ $gImg }}" alt="{{ $itemTitle }} artifact {{ $gIdx + 1 }}">
+                                            <img @if($isInitialActive || $isInitialNext || $isInitialPrev) src="{{ $gImg }}" @else data-src="{{ $gImg }}" @endif loading="{{ $isInitialActive ? 'eager' : 'lazy' }}" decoding="async" alt="{{ $itemTitle }} artifact {{ $gIdx + 1 }}">
                                         </div>
                                     @endforeach
                                 </div>
                             @elseif(!empty($coverSrc))
                                 <div class="stage-artifact stage-single-box">
-                                    <img src="{{ $coverSrc }}" alt="{{ $itemTitle }}">
+                                    <img @if($isInitialActive || $isInitialNext || $isInitialPrev) src="{{ $coverSrc }}" @else data-src="{{ $coverSrc }}" @endif loading="{{ $isInitialActive ? 'eager' : 'lazy' }}" decoding="async" alt="{{ $itemTitle }}">
                                 </div>
                             @else
                                 <div class="stage-artifact stage-placeholder-box">
@@ -997,6 +997,43 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    let showcaseVisible = false;
+    const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
+    function syncSlideMedia() {
+        slides.forEach((slide, index) => {
+            if (slide.classList.contains('is-active') || slide.classList.contains('is-peeking')) {
+                slide.querySelectorAll('img[data-src]').forEach(image => {
+                    image.src = image.dataset.src;
+                    delete image.dataset.src;
+                });
+            }
+            const video = slide.querySelector('video');
+            if (!video) return;
+            const shouldLoad = index === activeIndex && showcaseVisible && !document.hidden;
+            if (shouldLoad) {
+                const source = video.querySelector('source[data-src]');
+                if (source) {
+                    source.src = source.dataset.src;
+                    delete source.dataset.src;
+                    video.preload = reducedMotion.matches ? 'metadata' : 'auto';
+                    video.load();
+                }
+            }
+            if (shouldLoad && !reducedMotion.matches) {
+                video.play().catch(() => {});
+            } else {
+                video.pause();
+            }
+        });
+    }
+    const mediaObserver = new IntersectionObserver(entries => {
+        showcaseVisible = entries[0].isIntersecting;
+        syncSlideMedia();
+    });
+    mediaObserver.observe(viewport);
+    document.addEventListener('visibilitychange', syncSlideMedia);
+    reducedMotion.addEventListener('change', syncSlideMedia);
+
     // Infinite boundary wrap: move last slide to left of first (or first to right of last)
     // so peek slots are never empty. Uses instant CSS transform (no slide-level transition).
     let _boundaryWrappedIdx = null;
@@ -1053,17 +1090,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 slide.classList.add('is-distant');
             }
 
-            // Video management: only play video on active slide
-            const video = slide.querySelector('video');
-            if (video) {
-                if (idx === activeIndex) {
-                    video.play().catch(() => {});
-                } else {
-                    video.pause();
-                    video.currentTime = 0;
-                }
-            }
         });
+
+        syncSlideMedia();
 
         // Apply infinite boundary wrapping after classes are set
         applyBoundaryWrap();
@@ -1149,6 +1178,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     slide.classList.add('is-distant');
                 }
             });
+
+            syncSlideMedia();
 
             // Animate track toward the wrapped position
             track.style.transform = `translateX(${targetOffset}px)`;

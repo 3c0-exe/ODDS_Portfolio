@@ -2143,67 +2143,7 @@ function execCopy(text) {
     document.body.removeChild(ta);
 }
 
-// Force initial scroll to top on about page & prevent accidental jumps to bottom
-(function resetAboutPageScroll() {
-    if ('scrollRestoration' in history) {
-        history.scrollRestoration = 'manual';
-    }
-    
-    // Clear any hash targeting sections that causes browser to jump to bottom on load
-    if (window.location.hash && window.location.hash.startsWith('#section-')) {
-        history.replaceState(null, document.title, window.location.pathname + window.location.search);
-    }
-
-    const resetTop = () => {
-        window.scrollTo(0, 0);
-        if (document.documentElement) document.documentElement.scrollTop = 0;
-        if (document.body) document.body.scrollTop = 0;
-        if (window.smoother) {
-            window.smoother.scrollTop(0);
-        }
-    };
-
-    resetTop();
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', resetTop);
-    }
-    window.addEventListener('load', () => {
-        resetTop();
-        setTimeout(resetTop, 60);
-    });
-})();
-
-// Intercept TOC chapter clicks so they scroll smoothly without updating URL hash or jarring jumps
-(function initTocSmoothScroll() {
-    function setupTocClicks() {
-        const tocLinks = document.querySelectorAll('#toc-nav a, #mobile-toc-nav a, a[href^="#section-"]');
-        tocLinks.forEach(link => {
-            link.addEventListener('click', (e) => {
-                const rawHref = link.getAttribute('href');
-                if (!rawHref || !rawHref.includes('#')) return;
-                const id = rawHref.substring(rawHref.indexOf('#') + 1);
-                const target = document.getElementById(id);
-                if (target) {
-                    e.preventDefault();
-                    const navbar = document.getElementById('navbar');
-                    const navH = navbar ? navbar.offsetHeight : 70;
-                    if (window.smoother) {
-                        window.smoother.scrollTo(target, true, `top ${navH + 24}px`);
-                    } else {
-                        const topPos = target.getBoundingClientRect().top + window.pageYOffset - (navH + 24);
-                        window.scrollTo({ top: topPos, behavior: 'smooth' });
-                    }
-                }
-            });
-        });
-    }
-
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', setupTocClicks);
-    } else {
-        setupTocClicks();
-    }
-})();
+// Section links and refresh landing are handled by page-position.js.
 
 // ScrollSpy Navigation Tracker
 (function initAboutScrollSpy() {
@@ -2264,7 +2204,6 @@ function execCopy(text) {
         const feed = document.querySelector('.about-articles-feed');
         const sticky = document.querySelector('.about-sidebar-sticky');
         if (!sidebar || !feed || !sticky) return;
-        if (window.innerWidth < 1024) return;
 
         // If ScrollTrigger is not yet ready, retry shortly
         if (typeof ScrollTrigger === 'undefined') {
@@ -2276,6 +2215,7 @@ function execCopy(text) {
         ScrollTrigger.getAll().forEach(st => {
             if (st.pin === sticky || st.pin === sidebar) st.kill();
         });
+        if (window.innerWidth < 1024) return;
 
         const navbar = document.getElementById('navbar');
         // Dynamic top offset: navbar height + comfortable 32px breathing room
@@ -2299,10 +2239,6 @@ function execCopy(text) {
     } else {
         setupPin();
     }
-
-    window.addEventListener('load', () => {
-        setTimeout(setupPin, 100);
-    });
 
     let resizeTimer;
     window.addEventListener('resize', () => {

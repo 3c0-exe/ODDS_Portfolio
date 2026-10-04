@@ -97,7 +97,10 @@ $processPhases = [
                 <div class="process-phase-media-side">
                     <div class="process-image-frame">
                         <div class="process-image-glow" aria-hidden="true"></div>
-                        <img src="{{ $phase['image'] }}" alt="{{ $phase['alt'] }}" class="process-editorial-img" loading="lazy">
+                        <picture style="display: block; width: 100%; height: 100%;">
+                            <source srcset="{{ \Illuminate\Support\Str::replaceLast('.jpg', '.webp', $phase['image']) }}" type="image/webp">
+                            <img src="{{ $phase['image'] }}" alt="{{ $phase['alt'] }}" class="process-editorial-img" loading="lazy" decoding="async" width="1200" height="896">
+                        </picture>
                         <div class="process-image-tint" aria-hidden="true"></div>
                     </div>
                 </div>
@@ -114,5 +117,4 @@ $processPhases = [
         </div>
     </div>
 </section>
-
 

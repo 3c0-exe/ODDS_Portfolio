@@ -1,3 +1,4 @@
+import { setupPagePosition } from './page-position';
 import { createDialogFocus } from './dialog-focus';
 window.createDialogFocus = createDialogFocus;
 import './bootstrap';
@@ -45,39 +46,7 @@ if (document.getElementById('smooth-wrapper') && document.getElementById('smooth
 }
 window.smoother = smoother;
 
-// Preserve section links across page navigation and browser history.
-function sectionTarget(hash) {
-    try { return hash ? document.getElementById(decodeURIComponent(hash.slice(1))) : null; }
-    catch { return null; }
-}
-function scrollToSection(target, animate = false) {
-    const smooth = animate && !matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const offset = (document.getElementById('navbar')?.getBoundingClientRect().height || 80) + 16;
-    if (smoother) smoother.scrollTo(target, smooth, 'top ' + offset + 'px');
-    else window.scrollTo({top: target.getBoundingClientRect().top + window.scrollY - offset, behavior: smooth ? 'smooth' : 'instant'});
-}
-function restoreSection() {
-    ScrollTrigger.refresh();
-    const target = sectionTarget(location.hash) || (new URLSearchParams(location.search).get('preview') === 'services' ? document.querySelector('.service-explorer') : null);
-    if (target) scrollToSection(target);
-    else if (smoother) smoother.scrollTop(0);
-    else window.scrollTo(0, 0);
-}
-window.addEventListener('load', () => setTimeout(restoreSection, 150));
-window.addEventListener('pageshow', () => setTimeout(restoreSection, 150));
-window.addEventListener('hashchange', () => { const target=sectionTarget(location.hash); if (target) scrollToSection(target, true); });
-document.addEventListener('click', event => {
-    if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
-    const link=event.target.closest('a[href]');
-    if (!link || link.hasAttribute('download') || (link.target && link.target !== '_self')) return;
-    const url=new URL(link.href, location.href);
-    if (url.origin !== location.origin || url.pathname !== location.pathname || url.search !== location.search) return;
-    const target=sectionTarget(url.hash);
-    if (!target) return;
-    event.preventDefault();
-    if (url.hash !== location.hash) history.pushState(null, '', url.href);
-    scrollToSection(target, true);
-});
+window.pagePosition = setupPagePosition({ smoother, ScrollTrigger });
 
 // ─── Navbar & Mobile Drawer setup ──────────────────────
 const navbar = document.getElementById('navbar');
@@ -177,12 +146,7 @@ if (heroP || heroBtn) {
         if (logoLink && (window.location.pathname === '/' || window.location.pathname === '')) {
             logoLink.addEventListener('click', e => {
                 e.preventDefault();
-                history.pushState(null, '', location.pathname + location.search);
-                if (smoother) {
-                    smoother.scrollTo(0, true);
-                } else {
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                }
+                window.pagePosition.goToTop();
             });
         }
 

@@ -35,8 +35,7 @@
                 <img src="{{ !empty($settings->who_we_are_image) ? $settings->who_we_are_image : asset('storage/odds/whoweare/ODDS_founder_grouppic_noframe.png') }}"
                      alt="ODDS Founders Team"
                      class="who-we-are-img"
-                     loading="eager"
-                     fetchpriority="high"
+                     loading="lazy"
                      decoding="async">
             </div>
         </div>

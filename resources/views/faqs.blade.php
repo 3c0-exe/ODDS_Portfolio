@@ -1033,7 +1033,6 @@ document.addEventListener('DOMContentLoaded', function () {
         const sidebar = document.getElementById('faqs-sidebar');
         const feed = document.getElementById('faqs-content-col');
         if (!sidebar || !feed) return;
-        if (window.innerWidth < 960) return;
 
         // If ScrollTrigger is not yet ready, retry shortly
         if (typeof ScrollTrigger === 'undefined') {
@@ -1045,6 +1044,7 @@ document.addEventListener('DOMContentLoaded', function () {
         ScrollTrigger.getAll().forEach(st => {
             if (st.pin === sidebar) st.kill();
         });
+        if (window.innerWidth < 960) return;
 
         const navbar = document.getElementById('navbar');
         // Dynamic top offset: navbar height + 32px breathing room
@@ -1070,10 +1070,6 @@ document.addEventListener('DOMContentLoaded', function () {
     } else {
         setupPin();
     }
-
-    window.addEventListener('load', () => {
-        setTimeout(setupPin, 100);
-    });
 
     let resizeTimer;
     window.addEventListener('resize', () => {
