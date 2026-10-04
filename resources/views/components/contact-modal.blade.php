@@ -614,6 +614,16 @@
             const trigger = e.target.closest('.js-open-contact-modal, [data-open-contact]');
             if (trigger) {
                 e.preventDefault();
+                if (trigger.dataset.serviceNeeded) {
+                    const select = document.getElementById('contact-service');
+                    const service = trigger.dataset.serviceNeeded;
+                    if (select) {
+                        if (!Array.from(select.options).some(option => option.value === service)) {
+                            select.add(new Option(service, service));
+                        }
+                        select.value = service;
+                    }
+                }
                 openModal();
             }
         });

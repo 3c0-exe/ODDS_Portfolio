@@ -1,0 +1,60 @@
+.service-explorer {
+    background: #faf9fc;
+    color: #222126;
+    padding: clamp(62px, 7vw, 104px) 24px clamp(48px, 6vw, 84px);
+    position: relative;
+}
+.service-explorer-inner { max-width: 1160px; margin: 0 auto; }
+.service-explorer-heading { text-align: center; margin-bottom: 40px; }
+.service-explorer-eyebrow { font-size: 13px; font-weight: 500; letter-spacing: .22em; color: #9ca3af; margin: 0 0 20px; }
+.service-explorer-eyebrow span { width: 7px; height: 7px; background: #875af5; border-radius: 50%; }
+.service-explorer h2 { font-size: clamp(36px, 4.5vw, 52px); letter-spacing: -.02em; line-height: 1.12; margin: 0 0 22px; }
+.service-explorer h2 > span { font-weight: 400; color: #4b5563; }
+.service-explorer h2 > strong { font-weight: 900; color: #111; }
+.service-explorer h2 em { font-style: normal; color: #875af5; }
+.service-explorer-intro { max-width: 560px; color: #6b6873; font-size: 13px; line-height: 1.9; margin: 0 auto; }
+.service-explorer-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.service-explorer-card { text-align: left; display: flex; flex-direction: column; align-items: stretch; padding: 25px; border: 1px solid #e5e0ed; border-radius: 16px; background: #fff; font-family: inherit; cursor: pointer; color: inherit; transition: background .2s, border-color .2s, transform .2s; }
+.service-explorer-card:hover { background: #f3edff; border-color: #c6aff7; transform: translateY(-3px); }
+.service-explorer-card:focus-visible { outline: 3px solid #875af5; outline-offset: 4px; }
+.service-explorer-card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+.service-explorer-number { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #8b8496; }
+.service-explorer-card-top i { display: grid; place-items: center; width: 36px; height: 36px; color: #875af5; background: #f3edff; border-radius: 10px; font-size: 15px; }
+.service-explorer-card:nth-child(3n + 2) .service-explorer-card-top i { color: #b74d90; background: #fcecf6; }
+.service-explorer-name { font-size: 18px; line-height: 1.4; font-weight: 700; letter-spacing: -.035em; margin-bottom: 10px; }
+.service-explorer-description { font-size: 13px; line-height: 1.8; color: #76717e; max-width: 290px; margin-bottom: 23px; }
+.service-explorer-action { display: flex; align-items: center; justify-content: space-between; font-size: 11px; font-weight: 700; margin-top: auto; color: #6d45cd; }
+.service-explorer-action span { font-size: 19px; }
+.service-explorer-footer { display: flex; justify-content: space-between; align-items: center; gap: 20px; margin-top: 28px; font-size: 12px; }
+.service-explorer-footer p { margin: 0; font-weight: 600; }
+.service-explorer-footer p span { font-weight: 400; color: #78717f; }
+.service-explorer-footer a { color: #7148ce; font-weight: 700; white-space: nowrap; }
+.service-explorer-footer a span { margin-left: 9px; }
+.service-related-work { display: block; border: 1px solid #e6dcf8; border-radius: 16px; padding: 24px; background: #f6f1ff; color: #24212b; text-decoration: none; margin-top: 28px; }
+.service-related-work small { color: #875af5; font-size: 10px; text-transform: uppercase; letter-spacing: .12em; }
+.service-related-work strong { display: block; margin: 9px 0; font-size: 22px; }
+.service-related-work p { margin: 0 0 12px; color: #6b6477; line-height: 1.7; font-size: 14px; }
+.service-related-work span { font-size: 12px; color: #7148ce; font-weight: 700; }
+#service-modal { background: #141316; }
+@media (max-width: 900px) {
+    .service-explorer-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 600px) {
+    .service-explorer { padding: 48px 20px; }
+    .service-explorer-heading { display: block; margin-bottom: 24px; }
+    .service-explorer-intro { max-width: 340px; margin: 0 auto; font-size: 13px; }
+    .service-explorer-grid { grid-template-columns: minmax(0, 1fr); gap: 10px; }
+    .service-explorer-card { padding: 20px; }
+    .service-explorer-card-top { margin-bottom: 12px; }
+    .service-explorer-description { max-width: none; margin-bottom: 15px; }
+    .service-explorer-footer { display: block; line-height: 1.8; }
+    .service-explorer-footer p span { display: block; }
+    .service-explorer-footer a { display: inline-block; margin-top: 12px; }
+    #service-modal .service-modal-card { width: 100%; min-height: 100dvh; margin: 0; border-radius: 0; }
+    #service-modal .frame46-body { padding-bottom: 36px; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .service-explorer-card { transition: none; }
+    .service-explorer-card:hover { transform: none; }
+    .services-marquee-track { animation: none; }
+}

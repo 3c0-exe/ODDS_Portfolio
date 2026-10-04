@@ -1,4 +1,7 @@
 import './bootstrap';
+import '../css/service-explorer.css';
+import '../css/studio-desktop.css';
+import './studio-desktop';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ScrollSmoother } from 'gsap/ScrollSmoother';
@@ -38,6 +41,18 @@ if (document.getElementById('smooth-wrapper') && document.getElementById('smooth
     }
 }
 window.smoother = smoother;
+
+// Direct entry into the local Services design preview.
+window.addEventListener('load', () => {
+    if (new URLSearchParams(window.location.search).get('preview') !== 'services') return;
+    setTimeout(() => {
+        const section = document.querySelector('.service-explorer');
+        if (!section) return;
+        ScrollTrigger.refresh();
+        if (smoother) smoother.scrollTo(section, false, 'top 100px');
+        else window.scrollTo(0, section.getBoundingClientRect().top + window.scrollY - 100);
+    }, 150);
+});
 
 window.addEventListener('beforeunload', () => {
     if ('scrollRestoration' in history) {
@@ -1257,6 +1272,11 @@ function clearCarouselSelection() {
     const ctaActionBtn = document.getElementById('service-modal-cta-action');
     const ctaLabelEl = document.getElementById('service-modal-cta-label');
     const modalCard = modal.querySelector('.service-modal-card');
+    let serviceOpener = null;
+    let previousServiceOverflow = '';
+    let previousServicePaused = false;
+    let serviceBackground = [];
+    const escapeServiceText = value => String(value ?? '').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
 
     // Parse pre-rendered JSON payload for services
     let servicesData = [];
@@ -1388,6 +1408,9 @@ function clearCarouselSelection() {
     }
 
     function openServiceModal(meta) {
+        serviceOpener = document.activeElement;
+        previousServiceOverflow = document.body.style.overflow;
+        previousServicePaused = smoother ? smoother.paused() : false;
         if (modal.parentElement !== document.body) {
             document.body.appendChild(modal);
         }
@@ -1446,16 +1469,20 @@ function clearCarouselSelection() {
 
         if (ctaActionBtn) {
             ctaActionBtn.setAttribute('href', actionUrl);
+            ctaActionBtn.classList.toggle('js-open-contact-modal', actionUrl === '#contact');
+            ctaActionBtn.dataset.serviceNeeded = meta.contact || meta.name;
         }
         if (ctaLabelEl) {
             ctaLabelEl.textContent = actionText;
         }
 
         if (linksContainer) {
-            linksContainer.innerHTML = `<a href="${actionUrl}" class="frame46-action-btn service-modal-header-cta"><i class="fa-solid fa-arrow-right text-[10px]"></i><span>${actionText}</span></a>`;
+            linksContainer.innerHTML = `<a href="${actionUrl}" class="frame46-action-btn service-modal-header-cta ${actionUrl === '#contact' ? 'js-open-contact-modal' : ''}"><i class="fa-solid fa-arrow-right text-[10px]"></i><span>${escapeServiceText(actionText)}</span></a>`;
             const headerCta = linksContainer.querySelector('.service-modal-header-cta');
             if (headerCta) {
+                headerCta.dataset.serviceNeeded = meta.contact || meta.name;
                 headerCta.addEventListener('click', (e) => {
+                    if (actionUrl === '#contact') closeServiceModal();
                     if (actionUrl === '#cta') {
                         e.preventDefault();
                         closeServiceModal();
@@ -1469,6 +1496,14 @@ function clearCarouselSelection() {
         }
 
         renderNotionBlocks(meta.blocks, meta.desc);
+        if (meta.project && blocksContainer) {
+            const related = document.createElement('a');
+            related.className = 'service-related-work';
+            related.href = '/our-work';
+            related.innerHTML = `<small>Related work</small><strong>${escapeServiceText(meta.project)} ↗</strong><p>${escapeServiceText(meta.proof)}</p><span>Explore our work</span>`;
+            related.addEventListener('click', closeServiceModal);
+            blocksContainer.appendChild(related);
+        }
 
         modal.scrollTop = 0;
         modal.classList.remove('hidden');
@@ -1476,17 +1511,29 @@ function clearCarouselSelection() {
         modal.classList.add('is-active');
         modal.setAttribute('aria-hidden', 'false');
 
+        serviceBackground = Array.from(document.body.children)
+            .filter(el => el !== modal && !['SCRIPT', 'STYLE', 'LINK'].includes(el.tagName))
+            .map(el => [el, el.inert]);
+        serviceBackground.forEach(([el]) => { el.inert = true; });
+        document.body.style.overflow = 'hidden';
+        closeBtn?.focus({ preventScroll: true });
+
         document.body.classList.add('modal-open');
         // Pause ScrollSmoother so page doesn't scroll behind the modal
         if (smoother) smoother.paused(true);
     }
 
     function closeServiceModal() {
+        if (!modal.classList.contains('is-active')) return;
         modal.classList.remove('is-active');
         modal.setAttribute('aria-hidden', 'true');
         document.body.classList.remove('modal-open');
         // Resume ScrollSmoother if we're in services mode
-        if (smoother && !document.body.classList.contains('hero-active')) smoother.paused(false);
+        if (smoother) smoother.paused(previousServicePaused);
+        document.body.style.overflow = previousServiceOverflow;
+        serviceBackground.forEach(([el, inert]) => { el.inert = inert; });
+        serviceBackground = [];
+        serviceOpener?.focus({ preventScroll: true });
 
         // Always clear selection state so the marquee animation resumes
         clearCarouselSelection();
@@ -1517,6 +1564,9 @@ function clearCarouselSelection() {
                     blocks: item.body_content,
                     actionBtnText: item.action_btn_text,
                     actionBtnUrl: item.action_btn_url,
+                    contact: item.contact,
+                    project: item.project,
+                    proof: item.proof,
                     pathStr: item.path_str
                 };
             } else {
@@ -1549,6 +1599,7 @@ function clearCarouselSelection() {
     if (ctaActionBtn) {
         ctaActionBtn.addEventListener('click', (e) => {
             const href = ctaActionBtn.getAttribute('href');
+            if (href === '#contact') closeServiceModal();
             if (href === '#cta') {
                 e.preventDefault();
                 closeServiceModal();
@@ -1569,6 +1620,15 @@ function clearCarouselSelection() {
     window.addEventListener('keydown', e => {
         if (e.key === 'Escape' && modal.classList.contains('is-active')) {
             closeServiceModal();
+        }
+        if (e.key === 'Tab' && modal.classList.contains('is-active')) {
+            const targets = Array.from(modal.querySelectorAll('a[href], button, input, select, textarea, [tabindex]'))
+                .filter(el => !el.disabled && el.tabIndex >= 0 && el.getClientRects().length);
+            const first = targets[0], last = targets.at(-1);
+            if (first && ((e.shiftKey && document.activeElement === first) || (!e.shiftKey && document.activeElement === last))) {
+                e.preventDefault();
+                (e.shiftKey ? last : first).focus();
+            }
         }
     });
 
@@ -2665,8 +2725,5 @@ function initConsoleEasterEgg() {
         }
     };
 }
-
-
-
 
 

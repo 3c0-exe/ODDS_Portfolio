@@ -1,0 +1,107 @@
+.studio-desktop { position: relative; overflow: hidden; border: 1px solid #d7d7d7; border-radius: 18px; background: #232323; box-shadow: 0 16px 54px #38383818; }
+.studio-menu-bar { height: 40px; display: flex; justify-content: space-between; align-items: center; gap: 20px; padding: 0 20px; background: #fafafa; font-size: 11px; color: #3f3f3f; }
+.studio-menu-brand { display: flex; align-items: center; gap: 16px; font-weight: 700; }
+.studio-menu-brand img { width: 55px; filter: invert(1); }
+.studio-clock { font-family: 'JetBrains Mono', monospace; font-size: 10px; }
+.studio-workspace { height: 600px; position: relative; overflow: hidden; isolation: isolate; background: #d8d8d6; }
+.studio-wallpaper { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+.studio-shortcuts { display: grid; grid-template-columns: repeat(2, 110px); gap: 28px 12px; position: relative; width: fit-content; padding: 38px 24px; z-index: 2; }
+.studio-shortcut { display: flex; flex-direction: column; align-items: center; gap: 10px; border: 1px solid transparent; background: transparent; padding: 9px 4px; border-radius: 8px; color: #252525; cursor: pointer; font-family: inherit; }
+.studio-shortcut:hover, .studio-shortcut:focus-visible { background: #ffffff55; border-color: #a6a6a6; outline: none; }
+.studio-shortcut > span:last-child { font-size: 11px; font-weight: 500; line-height: 1.4; max-width: 108px; }
+.studio-app-icon { width: 58px; height: 58px; border-radius: 12px; display: grid; place-items: center; color: #252525; background: #f4f4f2; border: 1px solid #bfbfbd; box-shadow: 0 2px 4px #0000000a; font-size: 24px; position: relative; }
+.studio-shortcut-arrow { position: absolute; bottom: -2px; left: -4px; height: 17px; width: 17px; background: #ffffff; border-radius: 4px; color: #5b5b5b; font-size: 12px; display: grid; place-items: center; }
+.studio-welcome-note { position: absolute; top: 46px; right: 38px; width: 260px; color: #292929; background: #f5f5f3; border: 1px solid #bdbdbb; border-radius: 9px; overflow: hidden; box-shadow: 0 5px 18px #0000000c; z-index: 3; }
+.studio-welcome-note h3 { font-size: 27px; font-weight: 400; letter-spacing: -.04em; line-height: 1.2; margin: 0 0 14px; }
+.studio-welcome-note p { font-size: 11px; line-height: 1.8; margin: 0 0 18px; }
+.studio-welcome-note button { font-size: 10px; font-weight: 500; text-decoration: underline; text-underline-offset: 4px; background: transparent; border: 0; color: inherit; cursor: pointer; }
+.studio-desktop-hint { position: absolute; bottom: 18px; left: 26px; color: #626262; font-size: 10px; margin: 0; }
+.studio-desktop-hint span { font-size: 17px; margin-right: 6px; }
+.studio-window-layer { position: absolute; inset: 0; pointer-events: none; z-index: 5; }
+.studio-taskbar { height: 58px; padding: 8px 14px; display: flex; align-items: center; justify-content: space-between; gap: 18px; background: #f6f6f6; border-top: 1px solid #ffffff99; }
+.studio-launcher-button, .studio-show-desktop { border: 0; background: #e6e6e6; border-radius: 9px; height: 38px; padding: 0 14px; color: #525252; font-size: 10px; font-weight: 800; cursor: pointer; }
+.studio-dock { display: flex; gap: 5px; }
+.studio-dock-app { width: 42px; height: 40px; position: relative; background: transparent; border: 0; border-radius: 9px; color: #6e6e6e; font-size: 16px; cursor: pointer; }
+.studio-dock-app:hover, .studio-dock-app.is-front { background: #dedede; }
+.studio-running-dot { display: none; position: absolute; bottom: 2px; left: calc(50% - 2px); height: 4px; width: 4px; border-radius: 50%; background: #6f6f6f; }
+.is-running .studio-running-dot { display: block; }
+.studio-launcher { position: absolute; bottom: 68px; left: 14px; width: 270px; padding: 18px; background: #fafafa; border: 1px solid #dbdbdb; border-radius: 14px; box-shadow: 0 8px 35px #3e3e3e33; z-index: 100; }
+.studio-launcher p { font-size: 13px; font-weight: 700; color: #4c4c4c; margin: 0 0 12px; }
+.studio-launcher button { display: flex; gap: 12px; align-items: center; padding: 12px 10px; width: 100%; border: 0; border-radius: 7px; font-family: inherit; text-align: left; background: transparent; color: #4e4e4e; font-size: 12px; cursor: pointer; }
+.studio-launcher button:hover { background: #e7e7e7; }
+.studio-list-toggle { display: block; border: 0; background: transparent; margin: 18px 0 0 auto; padding: 6px 0; color: #828282; font-family: inherit; font-size: 11px; cursor: pointer; }
+.studio-list-toggle span { color: #6f6f6f; margin-left: 5px; }
+#studio-service-list { margin-top: 20px; }
+#studio-service-list[hidden], .studio-launcher[hidden], .studio-window[hidden] { display: none !important; }
+.studio-window { pointer-events: auto; position: absolute; width: min(550px, calc(100% - 32px)); height: 510px; max-height: calc(100% - 24px); background: #fcfcfc; border: 1px solid #cacaca; border-radius: 13px; box-shadow: 0 14px 45px #28282844, 0 2px 4px #36363622; overflow: hidden; display: flex; flex-direction: column; color: #2a2a2a; }
+.studio-window.is-maximized { inset: 8px !important; width: calc(100% - 16px); height: calc(100% - 16px); max-height: none; }
+.studio-window-titlebar { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 10px 12px 10px 18px; background: #e6e6e6; cursor: grab; flex-shrink: 0; touch-action: none; user-select: none; }
+.studio-window.is-dragging .studio-window-titlebar { cursor: grabbing; }
+.studio-window-app { display: flex; gap: 10px; align-items: center; font-size: 11px; font-weight: 700; color: #555555; }
+.studio-window-controls { display: flex; gap: 5px; }
+.studio-window-controls button { height: 24px; width: 26px; background: #ffffff66; border: 1px solid #d1d1d1; border-radius: 5px; cursor: pointer; color: #585858; font-size: 17px; line-height: 1; }
+.studio-window-controls button:hover { background: #ffffff; }
+.studio-window-controls [data-window-close]:hover { background: #c5c5c5; }
+.studio-window-address { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: #8f8f8f; padding: 10px 20px; border-bottom: 1px solid #e8e8e8; flex-shrink: 0; }
+.studio-window-content { padding: 26px 30px 30px; overflow-y: auto; overscroll-behavior: contain; }
+.studio-window-eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: #8a8a8a; }
+.studio-window-content h3 { font-size: 29px; font-weight: 700; letter-spacing: -.045em; margin: 9px 0 12px; line-height: 1.15; }
+.studio-window-content p, .studio-window-content li { font-size: 12px; line-height: 1.85; color: #767676; }
+.studio-window-content h4 { font-size: 13px; font-weight: 700; margin: 23px 0 7px; }
+.studio-window-content ul { margin: 0; padding-left: 18px; list-style: disc; }
+.studio-window-content li::marker { color: #7c7c7c; }
+.studio-project-proof { display: block; margin-top: 24px; padding: 18px; border: 1px solid #dbdbdb; border-radius: 10px; background: #ededed; text-decoration: none; }
+.studio-project-proof small { font-family: 'JetBrains Mono', monospace; font-size: 8px; color: #868686; }
+.studio-project-proof strong { display: flex; justify-content: space-between; margin: 6px 0; font-size: 18px; color: #545454; }
+.studio-project-proof p { margin: 0; font-size: 11px; }
+.studio-window-next { margin-top: 24px; border-top: 1px dashed #d3d3d3; padding-top: 3px; }
+.studio-project-cta { display: flex; justify-content: space-between; align-items: center; background: #636363; color: #ffffff; border-radius: 8px; padding: 12px 16px; font-size: 11px; font-weight: 700; margin-top: 14px; }
+.studio-desktop button:focus-visible, .studio-window button:focus-visible, .studio-window a:focus-visible { outline: 2px solid #424242; outline-offset: 3px; }
+.studio-window.is-mobile { position: fixed; inset: 0 !important; width: 100%; height: 100dvh; max-height: none; border-radius: 0; z-index: 100000 !important; }
+.studio-window.is-mobile .studio-window-controls [data-window-maximize], .studio-window.is-mobile .studio-window-controls [data-window-minimize] { display: none; }
+.studio-window.is-mobile .studio-window-titlebar { cursor: default; padding: 16px 18px; }
+@media (max-width: 1000px) and (min-width: 701px) { .studio-welcome-note { width: 230px; right: 24px; } .studio-shortcuts { grid-template-columns: repeat(2, 95px); gap: 20px 4px; padding-left: 14px; } }
+@media (max-width: 700px) {
+    .studio-menu-bar { padding: 0 12px; gap: 10px; }
+    .studio-menu-brand { gap: 9px; font-size: 9px; }
+    .studio-menu-brand img { width: 42px; }
+    .studio-workspace { height: 565px; }
+    .studio-shortcuts { grid-template-columns: repeat(3, minmax(0, 1fr)); width: 100%; padding: 24px 10px; gap: 14px 2px; }
+    .studio-shortcut { padding: 6px 2px; }
+    .studio-app-icon { width: 48px; height: 48px; font-size: 21px; border-radius: 12px; }
+    .studio-shortcut > span:last-child { font-size: 9px; }
+    .studio-welcome-note { top: 290px; right: 20px; width: calc(100% - 40px); max-width: 285px; }
+    .studio-welcome-note h3 { font-size: 24px; }
+    .studio-welcome-note p { font-size: 11px; }
+    .studio-welcome-note button { font-size: 10px; }
+    .studio-taskbar { padding: 8px; gap: 6px; }
+    .studio-launcher-button { padding: 0 8px; font-size: 8px; }
+    .studio-dock { gap: 1px; }
+    .studio-dock-app { width: 29px; font-size: 13px; }
+    .studio-show-desktop { width: 28px; padding: 0; font-size: 10px; }
+    .studio-window-content { padding: 25px 22px; }
+}
+@media (prefers-reduced-motion: no-preference) { .studio-window:not(.is-dragging) { animation: studioWindowAppear .16s ease-out; } @keyframes studioWindowAppear { from { opacity: 0; transform: translateY(7px); } to { opacity: 1; transform: translateY(0); } } }
+
+.studio-wallpaper-signature { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: clamp(220px, 30vw, 350px); height: auto; color: #242424; opacity: .075; }
+.studio-welcome-titlebar { display: flex; justify-content: space-between; align-items: center; padding: 10px 16px; border-bottom: 1px solid #d9d9d6; background: #ebebe8; font-size: 10px; color: #686868; }
+.studio-welcome-content { padding: 24px 22px; }
+@media (max-width: 700px) { .studio-wallpaper-signature { width: 230px; } .studio-welcome-content { padding: 20px; } .studio-desktop-hint { display: none; } }
+.studio-lorenzo-terminal { width: 300px; background: #202020; border-color: #333; color: #eee; box-shadow: 0 6px 20px #00000016; }
+.studio-lorenzo-terminal .studio-welcome-titlebar { justify-content: flex-start; gap: 12px; background: #2c2c2c; border-color: #3b3b3b; color: #a9a9a9; font-family: 'JetBrains Mono', monospace; font-size: 9px; }
+.studio-terminal-dots { display: flex; gap: 5px; }
+.studio-terminal-dots i { width: 6px; height: 6px; border-radius: 50%; background: #777; }
+.studio-terminal-dots i:nth-child(2) { background: #666; }
+.studio-terminal-dots i:nth-child(3) { background: #555; }
+.studio-lorenzo-terminal .studio-welcome-content { padding: 20px; font-family: 'JetBrains Mono', monospace; }
+.studio-lorenzo-terminal .studio-terminal-prompt { font-size: 9px; color: #888; margin: 0 0 18px; }
+.studio-terminal-prompt > span { color: #c1c1c1; }
+.studio-lorenzo-terminal h3 { font-family: inherit; font-size: 13px; font-weight: 500; letter-spacing: -.025em; line-height: 1.7; margin-bottom: 6px; }
+.studio-lorenzo-terminal p { font-size: 10px; color: #aaa; line-height: 1.8; }
+.studio-lorenzo-terminal button { display: flex; align-items: center; gap: 5px; font-family: inherit; font-size: 10px; color: #eee; text-decoration: none; text-align: left; padding: 5px 0; }
+.studio-lorenzo-terminal button:hover .studio-terminal-command { text-decoration: underline; text-underline-offset: 4px; }
+.studio-lorenzo-terminal button:focus-visible { outline-color: #ddd; }
+.studio-terminal-cursor { color: #bdbdbd; }
+@media (max-width: 1000px) and (min-width: 701px) { .studio-lorenzo-terminal { width: 260px; } }
+@media (max-width: 700px) { .studio-lorenzo-terminal { width: calc(100% - 40px); max-width: 285px; } }
+@media (prefers-reduced-motion: no-preference) { .studio-terminal-cursor { animation: studioTerminalBlink 1.2s step-end infinite; } @keyframes studioTerminalBlink { 50% { opacity: 0; } } }

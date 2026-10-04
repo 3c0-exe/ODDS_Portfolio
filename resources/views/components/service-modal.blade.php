@@ -1,5 +1,5 @@
 <!-- Full Viewport Service Detail Modal Overlay (Notion Spacing Layout) -->
-<div id="service-modal" class="project-modal-backdrop select-none hidden" aria-hidden="true" role="dialog" aria-modal="true">
+<div id="service-modal" class="project-modal-backdrop select-none hidden" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="service-modal-title">
 
   <!-- Centered Canvas Container -->
   <div class="frame46-container project-modal-card service-modal-card">
@@ -63,7 +63,7 @@
         <div class="frame46-subtitle-wrap">
           <span id="service-modal-tagline" class="frame46-meta-category">Engineering Service</span>
           <span class="frame46-meta-dot">•</span>
-          <span class="frame46-meta-year svc-modal-capability-label">Full Stack Capability</span>
+          <span class="frame46-meta-year svc-modal-capability-label">ODDS Studio</span>
         </div>
 
         <!-- Features / Deliverables Tag Chips -->
@@ -94,7 +94,7 @@
       <div class="svc-modal-cta-banner">
         <div class="svc-modal-cta-text">
           <h3 class="svc-modal-cta-heading">Ready to build with ODDS?</h3>
-          <p class="svc-modal-cta-sub">Let's scope your project and start engineering immediately.</p>
+          <p class="svc-modal-cta-sub">Tell us what you have in mind. We'll work out the next steps together.</p>
         </div>
         <a href="#cta" id="service-modal-cta-action" class="svc-modal-cta-btn">
           <span id="service-modal-cta-label">Let's Build</span>
