@@ -1,4 +1,13 @@
 <x-layout>
+@php
+    // The founder story supersedes these original seeded chapters.
+    // Keep CMS records intact and continue showing other authored chapters.
+    $sections = $sections->reject(fn ($section) => in_array($section->slug, [
+        'the-bet-we-made',
+        'we-never-picked-a-specialty',
+        'we-didnt-start-here',
+    ], true))->values();
+@endphp
 @push('styles')
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1578,7 +1587,7 @@
         <div class="about-eyebrow-nav">
             <span class="eyebrow-accent">About Us</span>
             <span class="eyebrow-divider">/</span>
-            <span>an oddly story</span>
+            <span>the people behind the screen</span>
         </div>
 
         {{-- Monumental Headline --}}
@@ -1587,6 +1596,8 @@
         </h1>
     </header>
 </div>
+
+@include('sections.about-story')
 
 {{-- =========================================================================
      THE ODDS TEAM GALLERY // INSPIRATION-MATCHED PYRAMID (8 OPERATORS)
@@ -1677,7 +1688,7 @@ $teamMembers = [
 ];
 @endphp
 
-<section class="odds-team-gallery-section" aria-label="ODDS Team Gallery">
+<section id="meet-the-team" class="odds-team-gallery-section" aria-label="ODDS Team Gallery">
     <div class="gallery-grid-container">
         @foreach($teamMembers as $member)
             <div class="gallery-member-card">
@@ -1870,6 +1881,7 @@ $evenMembers = [
     </div>
 </section>
 
+    @if($sections->isNotEmpty())
     {{-- MAIN EDITORIAL CONTENT LAYOUT --}}
     <div class="about-content-layout">
         
@@ -1961,121 +1973,7 @@ $evenMembers = [
                 </div>
             </div>
 
-            @if($sections->isEmpty())
-                {{-- Fallback: CH.01 --}}
-                <article class="chapter-article-card" id="section-1">
-                    <div class="chapter-card-topbar">
-                        <div class="chapter-badge-wrap">
-                            <span class="chapter-index-pill">CH.01</span>
-                            <span class="chapter-category-pill">PHILOSOPHY</span>
-                        </div>
-                        <div class="chapter-meta-right">
-                            <span>By <strong class="chapter-author-tag">ODDS Core Team</strong></span>
-                            <span>•</span>
-                            <span>4 MIN READ</span>
-                        </div>
-                    </div>
-
-                    <h2 class="chapter-main-title">The Bet We Made</h2>
-                    <p class="chapter-deck-subtitle">
-                        How we ended up building the parts of your business nobody applauds — and the parts everyone judges you by — under one roof.
-                    </p>
-
-                    <div class="blog-stream-body">
-                        <h2 class="blog-block-h2">Nobody Asks For What They're Actually Missing</h2>
-                        <p class="blog-block-p">
-                            Most people come to a studio knowing what they want. A site. An app. A logo. What they usually don't know is what's actually broken — the thing quietly costing them money, trust, or time, that nobody's bothered to name yet. We got good at finding that thing. Not because we're consultants. Because we've built enough of everything to recognize a gap on sight.
-                        </p>
-                        <p class="blog-block-p">
-                            We don't wait for a brief. We look for the hole first, then decide what fills it.
-                        </p>
-
-                        <h2 class="blog-block-h2">We Refused to Pick a Lane</h2>
-                        <p class="blog-block-p">
-                            Somewhere along the way, "development studio" and "the people who make you look good" became two different businesses, staffed by two different teams, billed on two different invoices. We never understood why. So we didn't split ourselves in half. Same people who ship the thing running underneath your business are the ones deciding how it should feel the moment someone sees it.
-                        </p>
-                        <p class="blog-block-p">
-                            One team. One standard. Nothing gets handed off half-finished.
-                        </p>
-                    </div>
-                </article>
-
-                {{-- Fallback: CH.02 --}}
-                <article class="chapter-article-card" id="section-2">
-                    <div class="chapter-card-topbar">
-                        <div class="chapter-badge-wrap">
-                            <span class="chapter-index-pill">CH.02</span>
-                            <span class="chapter-category-pill">RANGE</span>
-                        </div>
-                        <div class="chapter-meta-right">
-                            <span>By <strong class="chapter-author-tag">ODDS Architecture</strong></span>
-                            <span>•</span>
-                            <span>3 MIN READ</span>
-                        </div>
-                    </div>
-
-                    <h2 class="chapter-main-title">We Never Picked a Specialty</h2>
-                    <p class="chapter-deck-subtitle">
-                        Because the problem never announces what kind of solution it needs — so neither do we.
-                    </p>
-
-                    <div class="blog-stream-body">
-                        <h2 class="blog-block-h2">The Job Was Never "One Thing"</h2>
-                        <p class="blog-block-p">
-                            Ask us what we do and you'll get a different answer depending on the week. That's not a lack of focus. It's the opposite. We built the habit of showing up as whatever the problem actually required, instead of forcing every problem through the one skill we happened to be comfortable with. Some weeks that looks like a system running quietly behind a business. Other weeks it looks like the first thing a customer ever sees of you.
-                        </p>
-                        <p class="blog-block-p">
-                            We don't ask "is this our thing?" We ask "does it need building?" Then we build it.
-                        </p>
-
-                        <h2 class="blog-block-h2">Range Isn't the Same as Scattered</h2>
-                        <p class="blog-block-p">
-                            Studios that do "a bit of everything" usually do all of it half-heartedly. That's not what this is. Every direction we go, we go all the way — because the standard doesn't change depending on what we're building, only the shape of the work does. The thing running in the background gets the same attention as the thing on the front page. Neither one is the "real" work and the other the afterthought.
-                        </p>
-                        <p class="blog-block-p">
-                            Nothing here is a side project. Everything ships like it's the main thing.
-                        </p>
-                    </div>
-                </article>
-
-                {{-- Fallback: CH.03 --}}
-                <article class="chapter-article-card" id="section-3">
-                    <div class="chapter-card-topbar">
-                        <div class="chapter-badge-wrap">
-                            <span class="chapter-index-pill">CH.03</span>
-                            <span class="chapter-category-pill">ORIGIN</span>
-                        </div>
-                        <div class="chapter-meta-right">
-                            <span>By <strong class="chapter-author-tag">ODDS Core Team</strong></span>
-                            <span>•</span>
-                            <span>4 MIN READ</span>
-                        </div>
-                    </div>
-
-                    <h2 class="chapter-main-title">We Didn't Start Here</h2>
-                    <p class="chapter-deck-subtitle">
-                        Long before ODDS shipped a system, it was pointing a camera at something and figuring out how to make people feel it.
-                    </p>
-
-                    <div class="blog-stream-body">
-                        <h2 class="blog-block-h2">Nobody Taught Us to Stay in One Room</h2>
-                        <p class="blog-block-p">
-                            We didn't come up through a computer science program that told us where the lane markers were. We came up building things that had to work and had to move people — and nobody ever separated those into two departments. So when the tools changed, we changed with them. The instinct stayed the same: figure out what makes something land, then go build it, whatever it turns out to be made of.
-                        </p>
-                        <p class="blog-block-p">
-                            We were never hired to write code. We were hired to make something people couldn't look away from — code just became one of the ways we did that.
-                        </p>
-
-                        <h2 class="blog-block-h2">The Habit Never Left</h2>
-                        <p class="blog-block-p">
-                            That's the part that didn't change when the studio did. The same eye that used to frame a shot is the one deciding how a dashboard should feel to open. The same instinct that used to cut a trailer for tension is the one that decides where a user's attention should land first. We didn't inherit a technical philosophy and bolt storytelling onto it later. It was always one skill, wearing different outfits depending on the year.
-                        </p>
-                        <p class="blog-block-p">
-                            Everything we build still has to do the one thing we never stopped chasing: make someone feel something on purpose.
-                        </p>
-                    </div>
-                </article>
-            @else
+            @if($sections->isNotEmpty())
                 @foreach($sections as $index => $section)
                     @php
                         $blocks = $section->body_content ?? [];
@@ -2189,6 +2087,7 @@ $evenMembers = [
 
         </main>
     </div>
+    @endif
 
 </div>
 

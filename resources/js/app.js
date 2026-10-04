@@ -3,6 +3,7 @@ window.createDialogFocus = createDialogFocus;
 import './bootstrap';
 import '../css/service-explorer.css';
 import '../css/studio-desktop.css';
+import '../css/about-story.css';
 import './studio-desktop';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -2717,4 +2718,3 @@ function initConsoleEasterEgg() {
         }
     };
 }
-
