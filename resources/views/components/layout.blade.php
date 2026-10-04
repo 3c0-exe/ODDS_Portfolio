@@ -1,10 +1,36 @@
+@php
+    $seoPages = config('seo.pages');
+    $seoRoute = request()->route()?->getName();
+    $seoPage = $seoPages[$seoRoute] ?? $seoPages['portfolio.index'];
+    $seoBase = rtrim(config('seo.url'), '/');
+    $seoCanonical = isset($seoPages[$seoRoute]) ? $seoBase . route($seoRoute, [], false) : null;
+    $seoImage = $seoBase . config('seo.image');
+@endphp
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="ODDS — We build what your business needs FAST. Custom software, web, mobile, backend and game development.">
-    <title>ODDS — We Build What Your Business Needs</title>
+    <meta name="description" content="{{ $seoPage['description'] }}">
+    <title>{{ $seoPage['title'] }}</title>
+    @if($seoCanonical)
+        <link rel="canonical" href="{{ $seoCanonical }}">
+        <meta property="og:url" content="{{ $seoCanonical }}">
+    @endif
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="{{ config('seo.site_name') }}">
+    <meta property="og:title" content="{{ $seoPage['title'] }}">
+    <meta property="og:description" content="{{ $seoPage['description'] }}">
+    <meta property="og:image" content="{{ $seoImage }}">
+    <meta property="og:image:type" content="image/png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="{{ config('seo.image_alt') }}">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ $seoPage['title'] }}">
+    <meta name="twitter:description" content="{{ $seoPage['description'] }}">
+    <meta name="twitter:image" content="{{ $seoImage }}">
+    <meta name="twitter:image:alt" content="{{ config('seo.image_alt') }}">
     <script>
         if ('scrollRestoration' in history) {
             history.scrollRestoration = 'manual';

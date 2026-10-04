@@ -20,6 +20,8 @@ use App\Http\Middleware\AdminAuthMiddleware;
 
 // Lightweight ping for uptime monitors — no DB queries, zero overhead
 Route::get('/ping', fn() => response()->json(['status' => 'ok']))->name('ping');
+Route::get('/sitemap.xml', [\App\Http\Controllers\SeoController::class, 'sitemap'])->name('seo.sitemap');
+Route::get('/robots.txt', [\App\Http\Controllers\SeoController::class, 'robots'])->name('seo.robots');
 
 /*
 |--------------------------------------------------------------------------
