@@ -36,9 +36,6 @@
             history.scrollRestoration = 'manual';
         }
         window.scrollTo(0, 0);
-        if (window.location.hash) {
-            history.replaceState(null, document.title, window.location.pathname + window.location.search);
-        }
     </script>
     <link rel="icon" type="image/svg+xml" href="{{ asset('assets/img/ODDS_logo.svg') }}">
     <link rel="alternate icon" href="{{ asset('assets/img/ODDS_logo.svg') }}">

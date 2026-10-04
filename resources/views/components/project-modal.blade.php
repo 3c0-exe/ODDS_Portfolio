@@ -1,5 +1,5 @@
 <!-- Full Viewport Project Detail Modal Overlay (Notion Spacing Layout) -->
-<div id="project-modal" class="project-modal-backdrop select-none hidden" aria-hidden="true" role="dialog" aria-modal="true">
+<div id="project-modal" inert aria-labelledby="project-modal-title" class="project-modal-backdrop select-none hidden" aria-hidden="true" role="dialog" aria-modal="true">
 
   <!-- Centered Canvas Container -->
   <div class="frame46-container project-modal-card">

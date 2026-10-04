@@ -838,6 +838,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const cards = Array.from(document.querySelectorAll('.faq-card'));
 
     let activeTopic = 'all';
+    const searchOpenedCards = new Set();
 
     // ─── ACCORDION TOGGLE ───
     function closeCard(card) {
@@ -864,6 +865,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         header.addEventListener('click', (e) => {
             e.preventDefault();
+            searchOpenedCards.delete(card);
             const isExpanded = card.classList.contains('is-expanded');
             if (isExpanded) {
                 closeCard(card);
@@ -894,6 +896,8 @@ document.addEventListener('DOMContentLoaded', function () {
             let sectionVisibleCount = 0;
 
             const matchesTopic = (activeTopic === 'all' || activeTopic === sectionCat);
+            // Reveal the parent before measuring answers; hidden groups have zero scrollHeight.
+            section.style.display = matchesTopic ? '' : 'none';
 
             sectionCards.forEach(card => {
                 const questionText = (card.querySelector('.faq-card-question')?.textContent || '').toLowerCase();
@@ -906,8 +910,11 @@ document.addEventListener('DOMContentLoaded', function () {
                     sectionVisibleCount++;
                     visibleCardsCount++;
 
+                    if (!query && searchOpenedCards.delete(card)) closeCard(card);
+
                     // Auto-open if specific search query matches and search is active
                     if (query.length > 2 && (questionText.includes(query) || answerText.includes(query))) {
+                        if (!card.classList.contains('is-expanded')) searchOpenedCards.add(card);
                         openCard(card);
                     }
                 } else {
@@ -935,7 +942,14 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // Search Input Event
-    searchInput.addEventListener('input', filterFaqs);
+    searchInput.addEventListener('input', () => {
+        // Search all questions so a previously selected topic cannot hide valid results.
+        if (searchInput.value.trim()) {
+            activeTopic = 'all';
+            syncTopicButtons('all');
+        }
+        filterFaqs();
+    });
 
     searchClear.addEventListener('click', () => {
         searchInput.value = '';
@@ -955,21 +969,26 @@ document.addEventListener('DOMContentLoaded', function () {
         desktopTopicBtns.forEach(btn => {
             if (btn.getAttribute('data-topic') === topic) {
                 btn.classList.add('is-active');
+                btn.setAttribute('aria-pressed', 'true');
             } else {
                 btn.classList.remove('is-active');
+                btn.setAttribute('aria-pressed', 'false');
             }
         });
 
         mobileTopicBtns.forEach(btn => {
             if (btn.getAttribute('data-topic') === topic) {
                 btn.classList.add('is-active');
+                btn.setAttribute('aria-pressed', 'true');
             } else {
                 btn.classList.remove('is-active');
+                btn.setAttribute('aria-pressed', 'false');
             }
         });
     }
 
     function selectTopic(topic) {
+        searchInput.value = '';
         activeTopic = topic;
         syncTopicButtons(topic);
         filterFaqs();
@@ -977,8 +996,8 @@ document.addEventListener('DOMContentLoaded', function () {
         // Scroll into view on mobile if filtered to a specific section
         if (topic !== 'all' && window.innerWidth <= 960) {
             const targetSection = document.getElementById('topic-section-' + topic);
-            if (targetSection) {
-                targetSection.scrollIntoView({ behavior: 'smooth' });
+            if (targetSection && targetSection.style.display !== 'none') {
+                targetSection.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
             }
         }
     }
@@ -994,6 +1013,8 @@ document.addEventListener('DOMContentLoaded', function () {
             selectTopic(btn.getAttribute('data-topic'));
         });
     });
+
+    syncTopicButtons(activeTopic);
 
     // Window resize recalculation for open cards
     window.addEventListener('resize', () => {

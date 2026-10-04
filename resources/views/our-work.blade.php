@@ -1217,6 +1217,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function openModalForCurrent() {
         const item = projectsData[activeIndex];
         if (item && window.openProjectModal) {
+            storyBtn?.focus({ preventScroll: true });
             window.openProjectModal({
                 title: item.title,
                 category: item.category,

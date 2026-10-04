@@ -1,3 +1,5 @@
+import { createDialogFocus } from './dialog-focus';
+window.createDialogFocus = createDialogFocus;
 import './bootstrap';
 import '../css/service-explorer.css';
 import '../css/studio-desktop.css';
@@ -42,36 +44,38 @@ if (document.getElementById('smooth-wrapper') && document.getElementById('smooth
 }
 window.smoother = smoother;
 
-// Direct entry into the local Services design preview.
-window.addEventListener('load', () => {
-    if (new URLSearchParams(window.location.search).get('preview') !== 'services') return;
-    setTimeout(() => {
-        const section = document.querySelector('.service-explorer');
-        if (!section) return;
-        ScrollTrigger.refresh();
-        if (smoother) smoother.scrollTo(section, false, 'top 100px');
-        else window.scrollTo(0, section.getBoundingClientRect().top + window.scrollY - 100);
-    }, 150);
-});
-
-window.addEventListener('beforeunload', () => {
-    if ('scrollRestoration' in history) {
-        history.scrollRestoration = 'manual';
-    }
-    window.scrollTo(0, 0);
-});
-
-window.addEventListener('pageshow', () => {
-    if ('scrollRestoration' in history) {
-        history.scrollRestoration = 'manual';
-    }
-    window.scrollTo(0, 0);
-    if (window.smoother) {
-        window.smoother.scrollTop(0);
-    }
-    if (typeof ScrollTrigger !== 'undefined') {
-        ScrollTrigger.refresh();
-    }
+// Preserve section links across page navigation and browser history.
+function sectionTarget(hash) {
+    try { return hash ? document.getElementById(decodeURIComponent(hash.slice(1))) : null; }
+    catch { return null; }
+}
+function scrollToSection(target, animate = false) {
+    const smooth = animate && !matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const offset = (document.getElementById('navbar')?.getBoundingClientRect().height || 80) + 16;
+    if (smoother) smoother.scrollTo(target, smooth, 'top ' + offset + 'px');
+    else window.scrollTo({top: target.getBoundingClientRect().top + window.scrollY - offset, behavior: smooth ? 'smooth' : 'instant'});
+}
+function restoreSection() {
+    ScrollTrigger.refresh();
+    const target = sectionTarget(location.hash) || (new URLSearchParams(location.search).get('preview') === 'services' ? document.querySelector('.service-explorer') : null);
+    if (target) scrollToSection(target);
+    else if (smoother) smoother.scrollTop(0);
+    else window.scrollTo(0, 0);
+}
+window.addEventListener('load', () => setTimeout(restoreSection, 150));
+window.addEventListener('pageshow', () => setTimeout(restoreSection, 150));
+window.addEventListener('hashchange', () => { const target=sectionTarget(location.hash); if (target) scrollToSection(target, true); });
+document.addEventListener('click', event => {
+    if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    const link=event.target.closest('a[href]');
+    if (!link || link.hasAttribute('download') || (link.target && link.target !== '_self')) return;
+    const url=new URL(link.href, location.href);
+    if (url.origin !== location.origin || url.pathname !== location.pathname || url.search !== location.search) return;
+    const target=sectionTarget(url.hash);
+    if (!target) return;
+    event.preventDefault();
+    if (url.hash !== location.hash) history.pushState(null, '', url.href);
+    scrollToSection(target, true);
 });
 
 // ─── Navbar & Mobile Drawer setup ──────────────────────
@@ -167,29 +171,12 @@ if (heroP || heroBtn) {
             navbar.classList.toggle('light-theme', !!t.light);
         }
 
-        // Smooth scroll for anchor links
-        document.querySelectorAll('a[href^="#"], a[href^="/#"]').forEach(link => {
-            link.addEventListener('click', e => {
-                const rawHref = link.getAttribute('href');
-                const hash = rawHref.includes('#') ? rawHref.substring(rawHref.indexOf('#') + 1) : '';
-                if (!hash) return;
-                const targetEl = document.getElementById(hash);
-                if (targetEl) {
-                    e.preventDefault();
-                    if (smoother) {
-                        smoother.scrollTo(targetEl, true);
-                    } else {
-                        targetEl.scrollIntoView({ behavior: 'smooth' });
-                    }
-                }
-            });
-        });
-
         // Logo smooth scroll to top
         const logoLink = document.getElementById('logo');
         if (logoLink && (window.location.pathname === '/' || window.location.pathname === '')) {
             logoLink.addEventListener('click', e => {
                 e.preventDefault();
+                history.pushState(null, '', location.pathname + location.search);
                 if (smoother) {
                     smoother.scrollTo(0, true);
                 } else {
@@ -637,7 +624,6 @@ if (heroP || heroBtn) {
         }
 
         if (document.body.classList.contains('modal-open')) {
-            if (e.key === 'Escape' && window.closeProjectModal) window.closeProjectModal();
             return;
         }
 
@@ -957,6 +943,7 @@ function clearCarouselSelection() {
     const blocksContainer = document.getElementById('project-modal-blocks');
     const linksContainer = document.getElementById('project-modal-links');
     const modalCard = modal.querySelector('.project-modal-card');
+    const dialogFocus = createDialogFocus(modal, () => closeBtn);
 
     // Parse pre-rendered JSON payload
     let projectsData = [];
@@ -1156,23 +1143,19 @@ function clearCarouselSelection() {
         modal.classList.add('is-active');
         modal.setAttribute('aria-hidden', 'false');
 
-        document.body.classList.add('modal-open');
-        // Pause ScrollSmoother so page doesn't scroll behind the modal
-        if (smoother) smoother.paused(true);
+        dialogFocus.open();
     }
 
     function closeProjectModal() {
+        if (!dialogFocus.isTop()) return;
         modal.classList.remove('is-active');
         modal.setAttribute('aria-hidden', 'true');
-        document.body.classList.remove('modal-open');
+        dialogFocus.close();
         // Pause any video inside the modal when closed
         const modalVideo = modal.querySelector('video');
         if (modalVideo) {
             modalVideo.pause();
         }
-        // Resume ScrollSmoother if we're in services mode
-        if (smoother && !document.body.classList.contains('hero-active')) smoother.paused(false);
-
         setTimeout(() => {
             if (!modal.classList.contains('is-active')) {
                 modal.classList.add('hidden');
@@ -1182,6 +1165,12 @@ function clearCarouselSelection() {
 
     // Attach trigger to every project card in works grid
     document.querySelectorAll('.project-card-trigger').forEach(trigger => {
+        trigger.tabIndex = 0;
+        trigger.setAttribute('role', 'button');
+        trigger.setAttribute('aria-haspopup', 'dialog');
+        trigger.addEventListener('keydown', event => {
+            if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); trigger.click(); }
+        });
         trigger.addEventListener('click', e => {
             e.stopPropagation();
             const index = trigger.getAttribute('data-project-index');
@@ -1222,6 +1211,7 @@ function clearCarouselSelection() {
                 };
             }
 
+            trigger.focus({ preventScroll: true });
             openProjectModal(meta);
         });
     });
@@ -1240,7 +1230,9 @@ function clearCarouselSelection() {
     });
 
     window.addEventListener('keydown', e => {
-        if (e.key === 'Escape' && modal.classList.contains('is-active')) {
+        if (e.key === 'Escape' && modal.classList.contains('is-active') && dialogFocus.isTop()) {
+            e.preventDefault();
+            e.stopImmediatePropagation();
             closeProjectModal();
         }
     });
@@ -2725,5 +2717,4 @@ function initConsoleEasterEgg() {
         }
     };
 }
-
 

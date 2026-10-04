@@ -6,7 +6,7 @@
 @endphp
 
 <!-- ODDS Global Contact Modal -->
-<div id="odds-contact-modal" class="odds-modal-overlay" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="contact-modal-title">
+<div id="odds-contact-modal" inert class="odds-modal-overlay" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="contact-modal-title">
     <div class="odds-modal-backdrop" id="odds-modal-backdrop"></div>
     
     <div class="odds-modal-container">
@@ -593,20 +593,17 @@
 
         if (!modal) return;
 
-        function openModal() {
+        const dialogFocus = window.createDialogFocus(modal, () => document.getElementById('contact-name'));
+        function openModal(trigger) {
             modal.classList.add('is-active');
             modal.setAttribute('aria-hidden', 'false');
-            document.body.style.overflow = 'hidden';
-            setTimeout(() => {
-                const nameInput = document.getElementById('contact-name');
-                if (nameInput) nameInput.focus();
-            }, 100);
+            dialogFocus.open(trigger);
         }
-
         function closeModal() {
+            if (!dialogFocus.isTop()) return;
             modal.classList.remove('is-active');
             modal.setAttribute('aria-hidden', 'true');
-            document.body.style.overflow = '';
+            dialogFocus.close();
         }
 
         // Trigger selectors
@@ -624,7 +621,7 @@
                         select.value = service;
                     }
                 }
-                openModal();
+                openModal(trigger);
             }
         });
 
@@ -645,7 +642,9 @@
 
         // Close on Escape key
         document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape' && modal.classList.contains('is-active')) {
+            if (e.key === 'Escape' && modal.classList.contains('is-active') && dialogFocus.isTop()) {
+                e.preventDefault();
+                e.stopImmediatePropagation();
                 closeModal();
             }
         });
