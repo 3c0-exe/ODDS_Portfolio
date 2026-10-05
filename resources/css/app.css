@@ -1980,6 +1980,20 @@ body:not(.hero-active) .hero-services-stage {
 }
 
 @media (min-width: 992px) {
+    .why-process-track-wrapper {
+        overflow: visible;
+        /* Allow the tail below the section while containing horizontal travel. */
+        clip-path: inset(0 0 -10000px 0);
+        z-index: 0;
+        isolation: isolate;
+    }
+
+    .why-process-track-wrapper ~ .faq,
+    .why-process-track-wrapper ~ .cta {
+        position: relative;
+        z-index: 1;
+    }
+
     .why-process-track {
         /* Size the artwork by height so individual words fill the viewport. */
         --bridge-height: clamp(280px, 45vh, 520px);
@@ -3010,6 +3024,16 @@ body:not(.hero-active) .hero-services-stage {
 .process-footer {
     text-align: center;
     margin-top: 16px;
+}
+
+.process-footer .works-see-more {
+    position: relative;
+    z-index: 2;
+    background-color: #f0f0f5;
+}
+
+.process-footer .works-see-more:hover {
+    background-color: #111;
 }
 
 /* =============================================

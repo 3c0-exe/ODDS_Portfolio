@@ -1872,6 +1872,7 @@ function clearCarouselSelection() {
     let dealIntroTrigger = null;
     let pathLength = 3600;
     let horizLen = 1200;
+    let verticalEndY = 925;
     let yToLengthTable = [];
     let hasDealtOnce = false;
     const SAMPLES_COUNT = 300;
@@ -1891,6 +1892,7 @@ function clearCarouselSelection() {
         const isHorizontalTrack = window.innerWidth >= 992;
 
         if (!isHorizontalTrack) {
+            verticalEndY = 925;
             document.getElementById('process-content-cutout')?.setAttribute('width', '0');
             path.setAttribute('d', `M 467.332 65.742 C 454.431 127.953 404.689 176.83 342.376 182.085 L 114.38 201.314 C 89.7562 203.391 66.5806 213.818 48.6935 230.868 C -13.312 289.973 14.502 394.256 97.7059 414.631 L 505.918 514.595 C 512.476 516.201 518.697 518.955 524.295 522.729 C 573.667 556.018 545.675 633.188 486.442 627.082 L 127.407 590.071 C 108.352 588.107 89.2368 593.184 73.668 604.345 C 11.7091 648.76 43.1302 746.523 119.364 746.523 H 150.72 C 201.364 746.523 241.681 788.937 239.117 839.515 L 234.832 924.023`);
             try {
@@ -1942,7 +1944,10 @@ function clearCarouselSelection() {
             startX = Math.round((-distancePx / wrapWidth) * 565 + 24);
         }
 
-        path.setAttribute('d', `M ${startX} 24 ${PATH_TAIL_D}`);
+        const tail = PATH_TAIL_D;
+        verticalEndY = 925;
+        path.setAttribute('d', `M ${startX} 24 ${tail}`);
+        document.getElementById('process-flow-path')?.setAttribute('d', tail.replace('L 380 24', 'M 380 24'));
 
         try {
             pathLength = path.getTotalLength() || 4000;
@@ -1994,7 +1999,7 @@ function clearCarouselSelection() {
         }
         // A little arc-length progress keeps the inverse lookup continuous through loops.
         yToLengthTable.forEach((sample, index) => {
-            const spineY = 24 + (index / SAMPLES_COUNT) * 901;
+            const spineY = 24 + (index / SAMPLES_COUNT) * (verticalEndY - 24);
             sample.revealY = sample.maxSoFar * 0.85 + spineY * 0.15;
         });
     }
@@ -2003,7 +2008,7 @@ function clearCarouselSelection() {
         const verticalLen = pathLength - horizLen;
         if (!yToLengthTable.length) return 0;
         if (targetSvgY <= 24) return 0;
-        if (targetSvgY >= 925) return verticalLen;
+        if (targetSvgY >= verticalEndY) return verticalLen;
 
         for (let i = 1; i < yToLengthTable.length; i++) {
             const current = yToLengthTable[i];
@@ -2166,7 +2171,7 @@ function clearCarouselSelection() {
     initCardDealScrollTrigger();
 
     window.__getDealScrollTrigger = () => dealScrollTrigger;
-    window.__getPathMetrics = () => ({ pathLength, horizLen, getVerticalLengthForY });
+    window.__getPathMetrics = () => ({ pathLength, horizLen, verticalEndY, getVerticalLengthForY });
 
     function updateStack() {
         cards.forEach(card => {
@@ -2469,7 +2474,7 @@ function clearCarouselSelection() {
         const eyeLineY = window.innerHeight * 0.7;
         // Ease the viewing lead in with scroll distance, so arrival still reveals zero vertical line.
         const lead = Math.max(0, eyeLineY - arrivalY) * Math.min(1, verticalScroll / (window.innerHeight * 0.25));
-        const svgY = 24 + Math.min(901, (verticalScroll + lead) / scaleY);
+        const svgY = 24 + Math.min(metrics.verticalEndY - 24, (verticalScroll + lead) / scaleY);
         const length = Math.max(1, metrics.pathLength - metrics.horizLen);
         const drawn = Math.max(0, Math.min(length, metrics.getVerticalLengthForY(svgY)));
         flowPath.style.opacity = verticalScroll > 0.5 ? '1' : '0';

@@ -61,19 +61,24 @@ $processPhases = [
         <div class="process-linepath-wrap" aria-hidden="true">
             <svg class="process-linepath-svg" viewBox="0 0 565 925" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <defs>
-                    <linearGradient id="process-content-fade">
+                    <linearGradient id="process-tail-fade" gradientUnits="userSpaceOnUse" x1="0" y1="780" x2="0" y2="924">
                         <stop offset="0" stop-color="white" />
-                        <stop offset="0.022" stop-color="black" />
-                        <stop offset="0.978" stop-color="black" />
-                        <stop offset="1" stop-color="white" />
+                        <stop offset="0.35" stop-color="#bfbfbf" />
+                        <stop offset="0.7" stop-color="#4d4d4d" />
+                        <stop offset="1" stop-color="black" />
                     </linearGradient>
+                    <mask id="process-tail-mask" maskUnits="userSpaceOnUse" x="-20000" y="-20000" width="40000" height="40000" style="mask-type: luminance">
+                        <rect x="-20000" y="-20000" width="40000" height="40000" fill="url(#process-tail-fade)" />
+                    </mask>
                     <mask id="process-content-mask" maskUnits="userSpaceOnUse" x="-20000" y="-20000" width="40000" height="40000" style="mask-type: luminance">
                         <rect x="-20000" y="-20000" width="40000" height="40000" fill="white" />
                         <rect id="process-content-cutout" x="0" y="-100" width="0" height="300" fill="black" />
                     </mask>
                 </defs>
+                <g mask="url(#process-tail-mask)">
                 <path id="process-line-path" class="process-line-path" mask="url(#process-content-mask)" d="M -2400 24 L 380 24 C 450 24 472 42 467.332 65.742 C 454.431 127.953 404.689 176.83 342.376 182.085 L 114.38 201.314 C 89.7562 203.391 66.5806 213.818 48.6935 230.868 C -13.312 289.973 14.502 394.256 97.7059 414.631 L 505.918 514.595 C 512.476 516.201 518.697 518.955 524.295 522.729 C 573.667 556.018 545.675 633.188 486.442 627.082 L 127.407 590.071 C 108.352 588.107 89.2368 593.184 73.668 604.345 C 11.7091 648.76 43.1302 746.523 119.364 746.523 H 150.72 C 201.364 746.523 241.681 788.937 239.117 839.515 L 234.832 924.023" stroke="#FF7E5D" stroke-width="30" stroke-linecap="round" stroke-linejoin="round"/>
                 <path id="process-flow-path" class="process-line-path" d="M 380 24 C 450 24 472 42 467.332 65.742 C 454.431 127.953 404.689 176.83 342.376 182.085 L 114.38 201.314 C 89.7562 203.391 66.5806 213.818 48.6935 230.868 C -13.312 289.973 14.502 394.256 97.7059 414.631 L 505.918 514.595 C 512.476 516.201 518.697 518.955 524.295 522.729 C 573.667 556.018 545.675 633.188 486.442 627.082 L 127.407 590.071 C 108.352 588.107 89.2368 593.184 73.668 604.345 C 11.7091 648.76 43.1302 746.523 119.364 746.523 H 150.72 C 201.364 746.523 241.681 788.937 239.117 839.515 L 234.832 924.023" pathLength="1" stroke="#FF7E5D" stroke-width="30" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="1 1" stroke-dashoffset="1" style="opacity: 0" />
+                </g>
             </svg>
         </div>
 
