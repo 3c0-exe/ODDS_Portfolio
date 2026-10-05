@@ -1977,6 +1977,11 @@ function clearCarouselSelection() {
                 yToLengthTable.push({ len, y: pt.y, maxSoFar: maxY });
             } catch (e) {}
         }
+        // A little arc-length progress keeps the inverse lookup continuous through loops.
+        yToLengthTable.forEach((sample, index) => {
+            const spineY = 24 + (index / SAMPLES_COUNT) * 901;
+            sample.revealY = sample.maxSoFar * 0.85 + spineY * 0.15;
+        });
     }
 
     function getVerticalLengthForY(targetSvgY) {
@@ -1985,13 +1990,15 @@ function clearCarouselSelection() {
         if (targetSvgY <= 24) return 0;
         if (targetSvgY >= 925) return verticalLen;
 
-        let bestLen = 0;
-        for (let i = 0; i < yToLengthTable.length; i++) {
-            if (yToLengthTable[i].maxSoFar <= targetSvgY) {
-                bestLen = yToLengthTable[i].len - horizLen;
+        for (let i = 1; i < yToLengthTable.length; i++) {
+            const current = yToLengthTable[i];
+            if (current.revealY >= targetSvgY) {
+                const previous = yToLengthTable[i - 1];
+                const fraction = Math.max(0, Math.min(1, (targetSvgY - previous.revealY) / (current.revealY - previous.revealY)));
+                return previous.len + fraction * (current.len - previous.len) - horizLen;
             }
         }
-        return Math.max(0, Math.min(verticalLen, bestLen));
+        return verticalLen;
     }
 
     function initCardDealScrollTrigger() {
@@ -2111,7 +2118,7 @@ function clearCarouselSelection() {
             .to(path, {
                 strokeDashoffset: () => pathLength - horizLen,
                 ease: 'none',
-                duration: 1.1
+                duration: 2.0
             }, '<');
         }
 
@@ -2386,105 +2393,59 @@ function clearCarouselSelection() {
 
 // ─── Process Section Line Path Scroll Trail ─────────────
 (function initProcessLineTrail() {
-    const path = document.getElementById('process-line-path');
-    const svgWrap = document.querySelector('.process-linepath-wrap');
-    if (!path || !svgWrap) return;
+    const flowPath = document.getElementById('process-flow-path');
+    const connector = document.getElementById('process-line-path');
+    if (!flowPath || !connector) return;
 
-    let targetLengthToDraw = 0;
-    let currentLengthToDraw = 0;
-
-    function isDealScrubbing(trigger) {
-        return trigger && (trigger.isActive || trigger.getTween()?.isActive());
-    }
-
-    function calcTargetProgress() {
-        const feed = document.querySelector('.process-editorial-feed') || svgWrap;
-        const processSec = document.getElementById('process') || svgWrap;
-        const feedRect = feed.getBoundingClientRect();
-        const processRect = processSec.getBoundingClientRect();
-        const winHeight = window.innerHeight;
-
-        // The user's active focal viewing eye line in the viewport
-        const eyeLineY = winHeight * 0.5;
-
-        // The process section starts at processRect.top and finishes when Phase 03 is in view
-        const processStart = processRect.top + (winHeight * 0.2);
-        const feedEnd = feedRect.bottom - (winHeight * 0.35);
-        const totalDist = Math.max(1, feedEnd - processStart);
-
-        // Progress from 0.0 (entering Process) to 1.0 (Phase 3)
-        const scrollProgress = Math.max(0, Math.min(1, (eyeLineY - processStart) / totalDist));
-        const targetSvgY = 24 + scrollProgress * (925 - 24);
-
-        const dealST = window.__getDealScrollTrigger ? window.__getDealScrollTrigger() : null;
-        const metrics = window.__getPathMetrics ? window.__getPathMetrics() : { pathLength: 3600, horizLen: 1200, getVerticalLengthForY: () => 0 };
-        const { pathLength, horizLen, getVerticalLengthForY } = metrics;
-
-        if (isDealScrubbing(dealST)) {
-            // GSAP dealTL is actively scrubbing during Why pin
-            const curOffset = parseFloat(path.style.strokeDashoffset);
-            if (!isNaN(curOffset)) {
-                currentLengthToDraw = pathLength - curOffset;
-            }
+    // A separate path lets vertical drawing follow scroll without waiting for horizontal scrubbing.
+    function updateProcessTrail() {
+        const trigger = window.__getDealScrollTrigger?.();
+        const metrics = window.__getPathMetrics?.();
+        if (!trigger && metrics) {
+            // Smaller screens keep the original single vertical path and viewport-based reveal.
+            flowPath.style.opacity = '0';
+            flowPath.style.strokeDashoffset = '1';
+            const process = document.getElementById('process');
+            const feed = document.querySelector('.process-editorial-feed');
+            if (!process || !feed) return;
+            const rect = process.getBoundingClientRect();
+            const start = rect.top + window.innerHeight * 0.2;
+            const end = feed.getBoundingClientRect().bottom - window.innerHeight * 0.35;
+            const progress = Math.max(0, Math.min(1, (window.innerHeight * 0.5 - start) / Math.max(1, end - start)));
+            const drawn = metrics.horizLen + metrics.getVerticalLengthForY(24 + progress * 901);
+            connector.style.opacity = progress > 0 ? '1' : '0';
+            connector.style.strokeDashoffset = String(metrics.pathLength - drawn);
+            return;
+        }
+        if (!trigger || !metrics || trigger.progress < 1) {
+            flowPath.style.opacity = '0';
+            flowPath.style.strokeDashoffset = '1';
             return;
         }
 
-        if (dealST && dealST.progress >= 1) {
-            // Pinned transition completed -> user scrolling down through Process
-            path.style.opacity = '1';
-            const verticalScroll = Math.max(0, (smoother?.scrollTop() ?? window.scrollY) - dealST.end);
-            const svgScaleY = Math.abs(path.ownerSVGElement.getScreenCTM()?.d || 1);
-            const processSvgY = 24 + Math.min(901, verticalScroll / svgScaleY);
-            const extra = getVerticalLengthForY(processSvgY);
-            targetLengthToDraw = horizLen + extra;
-        } else if (dealST && dealST.progress <= 0) {
-            // Above Why section
-            path.style.opacity = '0';
-            targetLengthToDraw = 0;
-        } else if (!dealST) {
-            // Mobile or tablet fallback (vertical layout)
-            const processSec = document.getElementById('process');
-            if (processSec) {
-                const pRect = processSec.getBoundingClientRect();
-                const inView = pRect.top < winHeight && pRect.bottom > 0;
-                path.style.opacity = inView ? '1' : '0';
-            } else {
-                path.style.opacity = '1';
-            }
-            targetLengthToDraw = horizLen + getVerticalLengthForY(targetSvgY);
-        }
+        const matrix = flowPath.ownerSVGElement.getScreenCTM();
+        if (!matrix) return;
+        const verticalScroll = Math.max(0, (smoother?.scrollTop() ?? window.scrollY) - trigger.end);
+        const scaleY = Math.abs(matrix.d) || 1;
+        const startPoint = flowPath.ownerSVGElement.createSVGPoint();
+        startPoint.y = 24;
+        const currentStartY = startPoint.matrixTransform(matrix).y;
+        const arrivalY = currentStartY + verticalScroll;
+        const eyeLineY = window.innerHeight * 0.7;
+        // Ease the viewing lead in with scroll distance, so arrival still reveals zero vertical line.
+        const lead = Math.max(0, eyeLineY - arrivalY) * Math.min(1, verticalScroll / (window.innerHeight * 0.25));
+        const svgY = 24 + Math.min(901, (verticalScroll + lead) / scaleY);
+        const length = Math.max(1, metrics.pathLength - metrics.horizLen);
+        const drawn = Math.max(0, Math.min(length, metrics.getVerticalLengthForY(svgY)));
+        flowPath.style.opacity = verticalScroll > 0.5 ? '1' : '0';
+        // pathLength=1 makes the dash proportional, independent of the SVG's rendered size.
+        flowPath.style.strokeDashoffset = String(1 - drawn / length);
     }
 
     function loop() {
-        calcTargetProgress();
-
-        const dealST = window.__getDealScrollTrigger ? window.__getDealScrollTrigger() : null;
-        const metrics = window.__getPathMetrics ? window.__getPathMetrics() : { pathLength: 3600 };
-        const pathLen = metrics.pathLength || 3600;
-
-        if (!isDealScrubbing(dealST)) {
-            currentLengthToDraw += (targetLengthToDraw - currentLengthToDraw) * 0.15;
-            if (Math.abs(targetLengthToDraw - currentLengthToDraw) < 0.5) {
-                currentLengthToDraw = targetLengthToDraw;
-            }
-            const offset = Math.max(0, Math.min(pathLen, pathLen - currentLengthToDraw));
-            path.style.strokeDashoffset = offset;
-        }
-
+        updateProcessTrail();
         requestAnimationFrame(loop);
     }
-
-    window.addEventListener('scroll', calcTargetProgress, { passive: true });
-    window.addEventListener('resize', () => {
-        calcTargetProgress();
-    });
-
-    if (typeof ScrollTrigger !== 'undefined') {
-        ScrollTrigger.addEventListener('refresh', () => {
-            calcTargetProgress();
-        });
-    }
-
     requestAnimationFrame(loop);
 })();
 
