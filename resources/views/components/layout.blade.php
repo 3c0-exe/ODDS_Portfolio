@@ -35,6 +35,12 @@
         if ('scrollRestoration' in history) {
             history.scrollRestoration = 'manual';
         }
+        @if(request()->routeIs('portfolio.index'))
+        // Clear the previous section before the browser can jump to its anchor.
+        if (performance.getEntriesByType('navigation')[0]?.type === 'reload' && location.hash) {
+            history.replaceState(history.state, '', location.pathname + location.search);
+        }
+        @endif
         window.scrollTo(0, 0);
     </script>
     <link rel="icon" type="image/svg+xml" href="{{ asset('assets/img/ODDS_logo.svg') }}">

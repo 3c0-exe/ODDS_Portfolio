@@ -3,6 +3,8 @@ export function setupPagePosition({ smoother, ScrollTrigger }) {
     const stateKey = 'oddsScrollY';
     const initialSavedY = history.state?.[stateKey];
     const navigationType = performance.getEntriesByType('navigation')[0]?.type;
+    const restartAtHero = navigationType === 'reload' && !!document.getElementById('hero') &&
+        new URLSearchParams(location.search).get('preview') !== 'services';
     let initialApplied = false;
     let interacted = false;
     let handledUrl = location.href;
@@ -37,6 +39,7 @@ export function setupPagePosition({ smoother, ScrollTrigger }) {
         const target = initialTarget();
         // Back/forward restores the position saved for that history entry.
         if (navigationType === 'back_forward' && Number.isFinite(initialSavedY)) moveTo(initialSavedY);
+        else if (restartAtHero) moveTo(0);
         else if (target) moveTo(target);
         else if (!initialApplied) moveTo(0);
         initialApplied = true;
