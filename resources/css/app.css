@@ -1964,10 +1964,16 @@ body:not(.hero-active) .hero-services-stage {
 }
 
 .why-process-track-wrapper {
+    --canvas-shift: 0px;
     position: relative;
     width: 100%;
     overflow: hidden;
-    background: #f0f0f5;
+    background-color: #f0f0f5;
+    background-image:
+        radial-gradient(circle, rgba(91, 76, 131, 0.11) 0.85px, transparent 1px),
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='128' height='128'%3E%3Cfilter id='grain'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23grain)' opacity='.025'/%3E%3C/svg%3E");
+    background-size: 28px 28px, 128px 128px;
+    background-position: var(--canvas-shift) 0, 0 0;
 }
 
 .why-process-track {
@@ -1977,7 +1983,7 @@ body:not(.hero-active) .hero-services-stage {
     align-items: flex-start;
     width: calc(200vw + var(--why-process-gap));
     position: relative;
-    background: #f0f0f5;
+    background: transparent;
     will-change: transform;
 }
 
@@ -1991,7 +1997,7 @@ body:not(.hero-active) .hero-services-stage {
         flex-shrink: 0;
         position: relative;
         overflow: visible;
-        background: #f0f0f5;
+        background: transparent;
         box-sizing: border-box;
         margin-right: var(--why-process-gap);
     }
@@ -2003,9 +2009,14 @@ body:not(.hero-active) .hero-services-stage {
         flex-shrink: 0;
         position: relative;
         overflow: visible;
-        background: #f0f0f5;
+        background: transparent;
         box-sizing: border-box;
     }
+}
+
+.why-process-track > .why,
+.why-process-track > .process {
+    background: transparent;
 }
 
 @media (max-width: 991.98px) {

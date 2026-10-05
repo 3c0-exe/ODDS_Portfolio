@@ -2020,6 +2020,7 @@ function clearCarouselSelection() {
         const bridgeRows = Array.from(document.querySelectorAll('.engineered-bridge-row'));
         gsap.set(bridgeRows, { clearProps: 'transform,opacity,visibility' });
         resetEngineeredBridge(gsap);
+        if (wrapper) gsap.set(wrapper, { '--canvas-shift': '0px' });
 
         if (!shouldRunPinnedDeal()) {
             if (track) gsap.set(track, { clearProps: 'x,transform' });
@@ -2125,6 +2126,15 @@ function clearCarouselSelection() {
         }
 
         animateEngineeredBridge({ gsap, timeline: dealTL, horizontalDistance, reducedMotion: prefersReducedMotion });
+
+        // The paper grid travels slowly behind the artwork, then rests with the page.
+        if (!prefersReducedMotion) {
+            dealTL.to(wrapper, {
+                '--canvas-shift': () => `${-horizontalDistance() * 0.18}px`,
+                duration: 2.0,
+                ease: 'none',
+            }, 0.4);
+        }
 
         // Stage 3: Short buffer before unpinning cleanly into Process section
         dealTL.to({}, { duration: 0.3 });
