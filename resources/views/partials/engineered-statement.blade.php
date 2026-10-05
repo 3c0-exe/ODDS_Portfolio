@@ -135,7 +135,7 @@
 <filter id="bridge-connector-texture" x="1586" y="124.14" width="87.5" height="62.8604" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
 <feFlood flood-opacity="0" result="BackgroundImageFix" />
 <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape" />
-<feTurbulence type="fractalNoise" baseFrequency="2 2" stitchTiles="stitch" numOctaves="3" result="noise" seed="83" />
+<feTurbulence type="fractalNoise" baseFrequency="2 2" stitchTiles="stitch" numOctaves="3" result="noise" seed="83" x="1574" y="112" width="112" height="88" />
 <feOffset id="bridge-fluid-texture-motion" in="noise" dx="0" dy="0" result="flowingNoise" />
 <feColorMatrix in="flowingNoise" type="luminanceToAlpha" result="alphaNoise" />
 <feComponentTransfer in="alphaNoise" result="coloredNoise1">

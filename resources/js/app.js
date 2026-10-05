@@ -1,5 +1,6 @@
 import { setupPagePosition } from './page-position';
 import { animateEngineeredBridge, resetEngineeredBridge } from './engineered-bridge';
+import { animateFluidTexture } from './engineered-bridge-effects';
 import { createDialogFocus } from './dialog-focus';
 window.createDialogFocus = createDialogFocus;
 import './bootstrap';
@@ -91,6 +92,7 @@ if (mobileToggle && mobileDrawer) {
 //  FULL-PAGE ENGINE — mirrors GSAP branch trans-col logic
 // ─── Hero entrance ───────────────────────────────────
 const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+animateFluidTexture(gsap, prefersReducedMotion);
 const heroP = document.getElementById('hero-p');
 const heroBtn = document.getElementById('hero-btn');
 

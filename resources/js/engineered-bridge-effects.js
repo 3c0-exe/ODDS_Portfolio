@@ -1,5 +1,19 @@
 const originalDetailTransforms = new WeakMap();
 
+export function animateFluidTexture(gsap, reducedMotion) {
+    const texture = document.getElementById('bridge-fluid-texture-motion');
+    if (!texture || reducedMotion) return;
+
+    // Use wall-clock time so the stream keeps flowing when scrolling stops.
+    gsap.fromTo(texture, { attr: { dx: -2, dy: -4 } }, {
+        attr: { dx: 2, dy: 6 },
+        duration: 1.8,
+        repeat: -1,
+        yoyo: true,
+        ease: 'sine.inOut',
+    });
+}
+
 export function resetStatementEffects(gsap, statement) {
     for (const detail of statement.querySelectorAll('[data-bridge-detail]')) {
         if (!originalDetailTransforms.has(detail)) originalDetailTransforms.set(detail, detail.getAttribute('transform'));
@@ -9,9 +23,6 @@ export function resetStatementEffects(gsap, statement) {
     }
     gsap.set(statement.querySelectorAll('[data-bridge-effect]'), { clearProps: 'all' });
     statement.querySelector('#bridge-flower-center').setAttribute('r', '6.08184');
-    const textureMotion = statement.querySelector('#bridge-fluid-texture-motion');
-    textureMotion.setAttribute('dx', '0');
-    textureMotion.setAttribute('dy', '0');
 }
 
 export function animateStatementEffects({ gsap, timeline, statement, timings }) {
@@ -46,12 +57,6 @@ export function animateStatementEffects({ gsap, timeline, statement, timings }) 
     origin(systems, 1644, 201);
     timeline.to(fluid, { x: 0, y: 0, rotation: 18, duration: 0.1, ease: 'power2.inOut' }, fluidTime + 0.04);
     timeline.to(fluid, { x: 0, y: 0, rotation: 0, duration: 0.12, ease: 'power2.out' }, fluidTime + 0.2);
-    // Drift the original crystalline texture inside the stream's unchanged silhouette.
-    const textureMotion = element('fluid-texture-motion');
-    timeline.fromTo(textureMotion, { attr: { dx: 0, dy: 0 } }, {
-        attr: { dx: 3, dy: 7 }, duration: 0.18, ease: 'none',
-    }, fluidTime + 0.07);
-    timeline.to(textureMotion, { attr: { dx: 0, dy: 0 }, duration: 0.08, ease: 'power2.out' }, fluidTime + 0.25);
     timeline.to(systems, { x: 0, y: 3, rotation: -3, duration: 0.08, ease: 'power1.out' }, fluidTime + 0.17);
     timeline.to(systems, { x: 0, y: 0, rotation: 0, duration: 0.08, ease: 'power2.out' }, fluidTime + 0.25);
 
