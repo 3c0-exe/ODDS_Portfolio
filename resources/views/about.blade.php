@@ -1670,7 +1670,7 @@ $teamMembers = [
         'github' => 'https://github.com/Ggwepq',
         'pfp' => 'https://api.dicebear.com/10.x/pixelbot/svg?seed=Ggwepq',
         'real_photo' => asset('storage/odds/team/John_Cedric_Abaloyan.jpeg'),
-        'quip' => "performative (based on the matcha pic)",
+        'quip' => "matchaa 🤤🤤🤤",
         'positions' => ['Lead Developer'],
         'awards' => ['Best in Capstone'],
     ],

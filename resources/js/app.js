@@ -2639,7 +2639,7 @@ function initConsoleEasterEgg() {
                 { Name: 'Brix Jorie Cura', Role: 'Co-Founder, Lead Designer / CMO', Handle: 'ixDev018', Quip: "i-jira natin 'to" },
                 { Name: 'Jazam Laranio', Role: 'Developer / Lead Gen Specialist', Handle: '—', Quip: 'hates commuting' },
                 { Name: 'Mark Paulo Franco', Role: 'Developer / Field Logistics', Handle: 'itsFrancss619', Quip: 'cocoooo!' },
-                { Name: 'John Cedric Abaloyan', Role: 'Lead Developer', Handle: 'Ggwepq', Quip: 'performative (based on the matcha pic)' },
+                { Name: 'John Cedric Abaloyan', Role: 'Lead Developer', Handle: 'Ggwepq', Quip: 'matchaa 🤤🤤🤤' },
                 { Name: 'Sherwin Ramirez', Role: 'QA Specialist / Web Developer', Handle: 'sheerwiiin', Quip: 'wanted to have the same shirt as jerico' }
             ]);
             return '8 operators stand ready to build your systems.';
