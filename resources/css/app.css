@@ -1940,9 +1940,9 @@ body:not(.hero-active) .hero-services-stage {
     .engineered-bridge {
         display: flex;
         position: absolute;
-        left: 124vw;
-        top: 130px;
-        width: 150vw;
+        left: calc(100vw + var(--bridge-lead-in));
+        top: calc((100vh - var(--bridge-height)) / 2);
+        width: var(--bridge-width);
         z-index: 3;
         pointer-events: none;
     }
@@ -1980,6 +1980,15 @@ body:not(.hero-active) .hero-services-stage {
 }
 
 @media (min-width: 992px) {
+    .why-process-track {
+        /* Size the artwork by height so individual words fill the viewport. */
+        --bridge-height: clamp(280px, 45vh, 520px);
+        --bridge-width: calc(var(--bridge-height) * 13.0588235294);
+        --bridge-lead-in: 8vw;
+        /* Short lead-in + the full ribbon + 8vw before Process. */
+        --why-process-gap: calc(var(--bridge-lead-in) + var(--bridge-width) + 8vw);
+    }
+
     .why-process-track > .why {
         width: 100vw;
         min-width: 100vw;
@@ -2683,6 +2692,8 @@ body:not(.hero-active) .hero-services-stage {
 .process-content-wrap {
     width: 100%;
     max-width: 1280px;
+    min-width: 0;
+    box-sizing: border-box;
     margin: 0 auto;
     padding: 0 48px;
     display: flex;
@@ -2694,6 +2705,8 @@ body:not(.hero-active) .hero-services-stage {
 
 .process-center {
     text-align: center;
+    width: 100%;
+    margin-inline: auto;
     margin-bottom: 72px;
     max-width: 820px;
 }
@@ -2730,7 +2743,7 @@ body:not(.hero-active) .hero-services-stage {
     top: 220px;
     bottom: 80px;
     left: 50%;
-    transform: translateX(-50%);
+    transform: translateX(-50%) translateY(var(--process-line-align-offset, 0px));
     width: 100%;
     max-width: 1100px;
     pointer-events: none;

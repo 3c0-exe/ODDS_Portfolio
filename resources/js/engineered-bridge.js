@@ -37,12 +37,13 @@ export function animateEngineeredBridge({ gsap, timeline, horizontalDistance, re
         const kind = part.dataset.bridgeKind;
         const entryDistance = bridge.offsetLeft + (bounds.x - viewBox.x) * scale - window.innerWidth * 0.96;
         const entryTime = 0.4 + Math.max(0, entryDistance / horizontalDistance()) * 2;
-        const startTime = Math.min(2.15, entryTime);
         const name = part.dataset.bridgePart;
-        timings.set(name, startTime);
-        if (name === 'scale-label') continue;
         const staticEntrance = ['flower-icon', 'fluid-label', 'systems-label', 'fluid-systems-connector'].includes(name);
         const duration = staticEntrance ? 0.08 : name === 'production-label' ? 0.15 : name === 'effortlessly-text' ? 0.3 : kind === 'text' ? 0.16 : 0.22;
+        // Finish every entrance within the horizontal movement, even for the final words.
+        const startTime = Math.min(2.4 - duration, entryTime);
+        timings.set(name, startTime);
+        if (name === 'scale-label') continue;
         if (part.dataset.bridgeBoundsX) compoundTextEnd = Math.max(compoundTextEnd, startTime + duration);
         gsap.set(part, {
             transformOrigin: '50% 50%',

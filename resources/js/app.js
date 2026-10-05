@@ -1884,6 +1884,9 @@ function clearCarouselSelection() {
         const card2 = cards[2] || cards[cards.length - 1];
         if (!path) return { startX: -1200, horizLen: 1580, pathLength: 4000 };
 
+        // Measure from the original position on every refresh; offsets must not accumulate.
+        wrapEl?.style.removeProperty('--process-line-align-offset');
+
         const winWidth = window.innerWidth;
         const isHorizontalTrack = window.innerWidth >= 992;
 
@@ -1901,6 +1904,21 @@ function clearCarouselSelection() {
         }
 
         const wrapWidth = wrapEl ? wrapEl.offsetWidth : Math.min(1100, winWidth);
+        const statement = document.getElementById('bridge-statement');
+        const finalWord = document.getElementById('bridge-effortlessly-text');
+        const statementMatrix = statement?.getScreenCTM();
+        const lineMatrix = path.ownerSVGElement?.getScreenCTM();
+        if (wrapEl && finalWord && statementMatrix && lineMatrix) {
+            // Use the word's resting vector bounds, independent of its entrance animation.
+            const bounds = finalWord.getBBox();
+            const wordCenter = statement.createSVGPoint();
+            wordCenter.x = bounds.x + bounds.width / 2;
+            wordCenter.y = bounds.y + bounds.height / 2;
+            const lineCenter = path.ownerSVGElement.createSVGPoint();
+            lineCenter.y = 24;
+            const offsetY = wordCenter.matrixTransform(statementMatrix).y - lineCenter.matrixTransform(lineMatrix).y;
+            wrapEl.style.setProperty('--process-line-align-offset', `${offsetY}px`);
+        }
         let startX = -300;
 
         const process = document.getElementById('process');
@@ -1935,28 +1953,23 @@ function clearCarouselSelection() {
         horizLen = Math.max(10, 380 - startX);
         path.style.strokeDasharray = `${pathLength} ${pathLength}`;
 
-        // Keep the artwork above the existing connector at every desktop size.
-        const bridge = document.getElementById('engineered-bridge');
-        const track = document.getElementById('why-process-track');
+        // Hide the entire leading segment, revealing the connector only after the final word.
         const svg = path.ownerSVGElement;
         const matrix = svg?.getScreenCTM();
-        if (bridge && track && matrix) {
-            const point = svg.createSVGPoint();
-            point.y = 24;
-            const lineY = point.matrixTransform(matrix).y - track.getBoundingClientRect().top;
-            bridge.style.top = `${lineY - bridge.offsetHeight / 2}px`;
+        if (finalWord && statementMatrix && matrix) {
             const cutout = document.getElementById('process-content-cutout');
             if (cutout) {
-                const rect = bridge.getBoundingClientRect();
-                const left = svg.createSVGPoint();
+                const bounds = finalWord.getBBox();
+                const wordEnd = statement.createSVGPoint();
+                wordEnd.x = bounds.x + bounds.width;
+                wordEnd.y = bounds.y + bounds.height / 2;
+                const screenEnd = wordEnd.matrixTransform(statementMatrix);
                 const right = svg.createSVGPoint();
-                left.x = rect.left - 32;
-                right.x = rect.right + 32;
-                const inverse = matrix.inverse();
-                const start = left.matrixTransform(inverse).x;
-                const end = right.matrixTransform(inverse).x;
-                cutout.setAttribute('x', start);
-                cutout.setAttribute('width', end - start);
+                right.x = screenEnd.x + 24;
+                right.y = screenEnd.y;
+                const end = right.matrixTransform(matrix.inverse()).x;
+                cutout.setAttribute('x', -20000);
+                cutout.setAttribute('width', Math.max(0, end + 20000));
             }
         }
 
@@ -2075,7 +2088,17 @@ function clearCarouselSelection() {
 
         const res = calibratePathStartX();
         buildSampleTable();
-        const horizontalDistance = () => document.getElementById('process')?.offsetLeft || window.innerWidth * 2.2;
+        const horizontalDistance = () => {
+            const process = document.getElementById('process');
+            if (!process || !track) return window.innerWidth * 2.2;
+            // Align the section's actual center with the pinned viewport's center.
+            // Remove the current track translation so refreshes yield the same endpoint.
+            const processRect = process.getBoundingClientRect();
+            const wrapperRect = wrapper.getBoundingClientRect();
+            const currentX = Number(gsap.getProperty(track, 'x')) || 0;
+            return processRect.left + processRect.width / 2
+                - (wrapperRect.left + wrapperRect.width / 2) - currentX;
+        };
 
         if (path) {
             gsap.set(path, { opacity: 0 });
