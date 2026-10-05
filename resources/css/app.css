@@ -617,408 +617,86 @@ body:not(.hero-active) .hero-services-stage {
 }
 
 /* =============================================
-   WHO WE ARE (Signature Split Stage)
+   WHO WE ARE (Editorial Introduction)
    ============================================= */
 .who-we-are {
     width: 100%;
-    min-height: 100vh;
-    min-height: 100dvh;
-    background-color: #ffffff;
+    background: #fff;
     position: relative;
     z-index: 20;
     overflow: hidden;
-    display: flex;
     border-top: 1px solid rgba(0, 0, 0, 0.06);
-    box-sizing: border-box;
+    font-family: var(--font-primary), -apple-system, BlinkMacSystemFont, sans-serif;
 }
-
-.who-we-are-inner {
-    display: flex;
-    flex-direction: row;
-    align-items: stretch;
-    width: 100%;
-    min-height: 100vh;
-    min-height: 100dvh;
-    position: relative;
-}
-
-/* Left Content Column (55% Text Area aligned to global grid) */
-.who-we-are-left {
-    flex: 0 0 55%;
-    width: 55%;
-    max-width: 55%;
-    min-height: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    justify-content: center;
-    position: relative;
-    padding-left: clamp(28px, 4.5vw, 88px);
-    padding-right: clamp(20px, 3vw, 48px);
-    padding-top: calc(var(--nav-height, 80px) + clamp(16px, 2.5vh, 36px));
-    padding-bottom: clamp(24px, 3.5vh, 48px);
-    background-color: #ffffff;
-    overflow: hidden;
-    box-sizing: border-box;
-}
-
-/* Dotted Grid Pattern */
 .who-we-are-dots {
     position: absolute;
     inset: 0;
     pointer-events: none;
-    background-image: radial-gradient(circle, rgba(0, 0, 0, 0.115) 1.25px, transparent 1.25px);
+    background-image: radial-gradient(circle, rgba(0, 0, 0, 0.07) 1px, transparent 1px);
     background-size: 26px 26px;
-    background-position: 0 0;
 }
-
-.who-we-are-content {
+.who-we-are-inner {
     position: relative;
-    z-index: 2;
-    max-width: 1100px;
     width: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    text-align: left;
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: clamp(72px, 8vw, 132px) clamp(24px, 5vw, 80px);
+    box-sizing: border-box;
 }
-
-/* Eyebrow Label */
+.who-we-are-content { position: relative; z-index: 1; text-align: left; }
 .who-we-are-label {
-    font-size: clamp(14px, 1.15vw, 18px);
+    margin: 0 0 28px;
+    font-size: 14px;
     font-weight: 500;
-    color: #9ca3af;
-    letter-spacing: -0.01em;
-    margin-bottom: clamp(12px, 2vh, 22px);
-    font-family: var(--font-primary), -apple-system, BlinkMacSystemFont, sans-serif;
+    color: #666;
 }
-
-/* Mobile Media (Hidden on Desktop) */
-.who-we-are-mobile-media {
-    display: none;
-}
-
-.who-we-are-mobile-img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: center top;
-    display: block;
-}
-
-/* Unified Statement (Strict 6-Line Distribution on desktop with 3 Typographic Contrast Tiers) */
 .who-we-are-statement {
-    font-size: clamp(28px, 3.5vw, 58px);
-    line-height: 1.34;
-    letter-spacing: -0.035em;
-    margin-bottom: clamp(20px, 3vh, 38px);
-    font-family: var(--font-primary), -apple-system, BlinkMacSystemFont, sans-serif;
-    overflow-wrap: break-word;
-    word-break: normal;
-}
-
-.who-we-are-text-dark {
-    color: #111111;
+    max-width: 19ch;
+    margin: 0 0 32px;
+    font-size: clamp(38px, 4.6vw, 72px);
+    line-height: 1.12;
+    letter-spacing: -0.045em;
     font-weight: 550;
+    color: #111;
+    text-wrap: balance;
 }
-
-.who-we-are-text-muted {
-    color: #6b7280;
-    font-weight: 400;
+.who-we-are-description {
+    max-width: 52ch;
+    margin: 0 0 32px;
+    font-size: clamp(18px, 1.6vw, 23px);
+    line-height: 1.6;
+    letter-spacing: -0.015em;
+    color: #606570;
+    text-wrap: pretty;
 }
-
-.who-we-are-text-bold {
-    color: #0f172a;
-    font-weight: 750;
-}
-
-/* CTA Pill Button */
-.who-we-are-action {
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-}
-
+.who-we-are-description strong { color: #222; font-weight: 600; }
+.who-we-are-action { display: flex; align-items: center; }
 .who-we-are-btn {
     display: inline-flex;
     align-items: center;
     gap: 12px;
-    padding: 14px 30px;
-    background: #111111;
-    color: #ffffff;
+    padding: 14px 26px;
+    background: #111;
+    color: #fff;
     border-radius: 9999px;
     font-size: 15px;
     font-weight: 500;
-    font-family: var(--font-primary), -apple-system, BlinkMacSystemFont, sans-serif;
     text-decoration: none;
-    transition: background-color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+    transition: background-color 0.2s ease, transform 0.2s ease;
 }
-
-.who-we-are-btn:hover {
-    background: #000000;
-    transform: translateY(-2px);
-    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.2);
-}
-
-.who-we-are-arrow {
-    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.who-we-are-btn:hover .who-we-are-arrow {
-    transform: translateX(4px);
-}
-
-/* ---------------------------------------------------------------------------
-   [FRAMING STYLES: Who We Are — Jerico's Framed Studio Photo Stage (11e130c)]
-   If someone wants Brix's full-bleed borderless image layout back:
-   Refer to commit 02d9c65 ("initial responsiveness for why bet").
-   To switch back to Brix's version:
-     1) Comment out this framed section below.
-     2) Uncomment the "BRIX'S FULL-BLEED VERSION (commit 02d9c65)" block below it.
-   --------------------------------------------------------------------------- */
-
-/* Right Framed Image Column (42% Photo Stage - Jerico's version) */
-.who-we-are-right {
-    flex: 0 0 42%;
-    width: 42%;
-    max-width: 42%;
-    height: 100%;
-    min-height: 100%;
-    position: relative;
-    overflow: hidden;
-    background-color: #0b0c10;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: clamp(24px, 3.5vw, 48px);
-    box-sizing: border-box;
-}
-
-.who-we-are-ambient-bg {
-    position: absolute;
-    inset: -20px;
-    background-size: cover;
-    background-position: center;
-    filter: blur(40px) brightness(0.35) saturate(1.25);
-    opacity: 0.55;
-    pointer-events: none;
-    transform: scale(1.1);
-}
-
-.who-we-are-frame {
-    position: relative;
-    z-index: 2;
-    width: 100%;
-    max-width: 540px;
-    aspect-ratio: 4 / 3;
-    border-radius: 20px;
-    overflow: hidden;
-    background-color: #16171d;
-    box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.1);
-    transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.5s ease;
-}
-
-.who-we-are-frame:hover {
-    transform: translateY(-4px) scale(1.015);
-    box-shadow: 0 35px 75px -15px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(135, 90, 245, 0.35);
-}
-
-.who-we-are-img {
-    width: 100%;
-    height: 100%;
-    aspect-ratio: 4 / 3;
-    object-fit: cover;
-    object-position: center center;
-    display: block;
-    transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.who-we-are-frame:hover .who-we-are-img {
-    transform: scale(1.02);
-}
-
-/* ===========================================================================
-   [COMMENTED OUT] BRIX'S FULL-BLEED VERSION (commit 02d9c65)
-   To restore Brix's version: comment out the framed block above and uncomment this block.
-   ---------------------------------------------------------------------------
-.who-we-are-right {
-    flex: 0 0 45%;
-    width: 45%;
-    max-width: 45%;
-    min-height: 100%;
-    position: relative;
-    overflow: hidden;
-    background-color: transparent;
-    display: block;
-    padding: 0;
-    margin: 0;
-    box-sizing: border-box;
-}
-
-.who-we-are-ambient-bg {
-    display: none;
-}
-
-.who-we-are-frame {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    max-width: none;
-    max-height: none;
-    border: none;
-    border-radius: 0;
-    overflow: hidden;
-    background-color: transparent;
-    box-shadow: none;
-    margin: 0;
-    padding: 0;
-}
-
-.who-we-are-img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: center 15%;
-    display: block;
-}
-   =========================================================================== */
-
-/* Responsive Breakpoints */
-@media (max-width: 1023px) {
-    .who-we-are {
-        height: auto;
-        min-height: auto;
-        max-height: none;
-        overflow: visible;
-    }
-
-    .who-we-are-inner {
-        flex-direction: column;
-        height: auto;
-        min-height: auto;
-    }
-
-    .who-we-are-left {
-        flex: none;
-        width: 100%;
-        max-width: 100%;
-        height: auto;
-        min-height: auto;
-        justify-content: flex-start;
-        padding: clamp(44px, 6.5vw, 68px) clamp(24px, 5vw, 44px) clamp(48px, 6vw, 64px);
-    }
-
-    .who-we-are-content {
-        max-width: 100%;
-    }
-
-    /* Mobile media between label and statement */
-    .who-we-are-mobile-media {
-        display: block;
-        width: 100%;
-        max-width: 540px;
-        margin: 0 auto clamp(20px, 3.5vw, 28px);
-        border-radius: 16px;
-        overflow: hidden;
-        background-color: #111111;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-        border: 1px solid rgba(0, 0, 0, 0.06);
-        aspect-ratio: 4 / 3;
-    }
-
-    .who-we-are-mobile-img {
-        width: 100%;
-        height: 100%;
-        aspect-ratio: 4 / 3;
-        object-fit: cover;
-        object-position: center center;
-        display: block;
-    }
-
-    /* Commented out: Brix's mobile 3/4 portrait crop (commit 02d9c65)
-    .who-we-are-mobile-media { max-width: 480px; aspect-ratio: 3 / 4; }
-    .who-we-are-mobile-img { aspect-ratio: 3 / 4; }
-    */
-
-    .who-we-are-statement {
-        font-size: clamp(24px, 4.4vw, 38px);
-        line-height: 1.34;
-        letter-spacing: -0.025em;
-        margin-bottom: 28px;
-    }
-
-    /* Hide desktop right column on mobile/tablet */
-    .who-we-are-right {
-        display: none;
-    }
-}
-
+.who-we-are-btn:hover { background: #333; transform: translateY(-2px); }
+.who-we-are-btn:focus-visible { outline: 3px solid #8358ff; outline-offset: 5px; }
+.who-we-are-arrow { transition: transform 0.2s ease; }
+.who-we-are-btn:hover .who-we-are-arrow { transform: translateX(4px); }
 @media (max-width: 639px) {
-    .who-we-are-left {
-        padding: 36px 20px 48px;
-    }
-
-    .who-we-are-label {
-        font-size: 13px;
-        margin-bottom: 14px;
-    }
-
-    .who-we-are-mobile-media {
-        margin-bottom: 20px;
-        border-radius: 14px;
-        aspect-ratio: 4 / 3;
-    }
-
-    .who-we-are-mobile-img {
-        height: 100%;
-        aspect-ratio: 4 / 3;
-        object-fit: cover;
-        object-position: center center;
-    }
-
-    .who-we-are-statement {
-        font-size: clamp(20px, 5.8vw, 26px);
-        line-height: 1.36;
-        letter-spacing: -0.02em;
-        margin-bottom: 22px;
-    }
-
-    .who-we-are-btn {
-        padding: 12px 24px;
-        font-size: 14px;
-        gap: 10px;
-    }
+    .who-we-are-inner { padding: 64px 24px; }
+    .who-we-are-label { margin-bottom: 22px; font-size: 13px; }
+    .who-we-are-statement { font-size: clamp(32px, 8vw, 44px); margin-bottom: 24px; }
+    .who-we-are-description { font-size: 18px; margin-bottom: 28px; }
 }
-
-@media (max-width: 380px) {
-    .who-we-are-left {
-        padding: 28px 16px 40px;
-    }
-
-    .who-we-are-label {
-        font-size: 12.5px;
-        margin-bottom: 10px;
-    }
-
-    .who-we-are-mobile-media {
-        margin-bottom: 16px;
-        border-radius: 12px;
-        aspect-ratio: 4 / 3;
-    }
-
-    .who-we-are-mobile-img {
-        height: 100%;
-        aspect-ratio: 4 / 3;
-        object-fit: cover;
-        object-position: center center;
-    }
-
-    .who-we-are-statement {
-        font-size: 18.5px;
-        line-height: 1.32;
-    }
+@media (prefers-reduced-motion: reduce) {
+    .who-we-are-btn, .who-we-are-arrow { transition: none; }
+    .who-we-are-btn:hover, .who-we-are-btn:hover .who-we-are-arrow { transform: none; }
 }
 
 /* =============================================
