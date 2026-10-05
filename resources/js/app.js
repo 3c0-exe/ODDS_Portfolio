@@ -1,4 +1,5 @@
 import { setupPagePosition } from './page-position';
+import { animateEngineeredBridge, resetEngineeredBridge } from './engineered-bridge';
 import { createDialogFocus } from './dialog-focus';
 window.createDialogFocus = createDialogFocus;
 import './bootstrap';
@@ -1885,6 +1886,7 @@ function clearCarouselSelection() {
         const isHorizontalTrack = window.innerWidth >= 992;
 
         if (!isHorizontalTrack) {
+            document.getElementById('process-content-cutout')?.setAttribute('width', '0');
             path.setAttribute('d', `M 467.332 65.742 C 454.431 127.953 404.689 176.83 342.376 182.085 L 114.38 201.314 C 89.7562 203.391 66.5806 213.818 48.6935 230.868 C -13.312 289.973 14.502 394.256 97.7059 414.631 L 505.918 514.595 C 512.476 516.201 518.697 518.955 524.295 522.729 C 573.667 556.018 545.675 633.188 486.442 627.082 L 127.407 590.071 C 108.352 588.107 89.2368 593.184 73.668 604.345 C 11.7091 648.76 43.1302 746.523 119.364 746.523 H 150.72 C 201.364 746.523 241.681 788.937 239.117 839.515 L 234.832 924.023`);
             try {
                 pathLength = path.getTotalLength() || 2600;
@@ -1899,19 +1901,22 @@ function clearCarouselSelection() {
         const wrapWidth = wrapEl ? wrapEl.offsetWidth : Math.min(1100, winWidth);
         let startX = -300;
 
-        const gapVw = 0.6; // 60vw transition space between Why and Process
-        const gapPx = winWidth * gapVw;
+        const process = document.getElementById('process');
+        const gapPx = process ? process.offsetLeft - winWidth : winWidth * 1.2;
 
         if (card2 && wrapEl) {
-            // Dynamically calculate Card 2 right edge relative to wrapEl left edge in track space
+            // Use the SVG's actual coordinate transform, including viewBox letterboxing.
             const deckEl = document.getElementById('why-deck');
-            const deckWidth = deckEl ? deckEl.offsetWidth : Math.min(1195, winWidth);
-            const deckLeft = (winWidth - deckWidth) / 2;
             const card2Width = card2.offsetWidth || 385;
-            const card2RightInWhy = deckLeft + (card2.offsetLeft || (deckWidth - card2Width)) + card2Width;
-            const wrapLeftInTrack = winWidth + gapPx + (winWidth - wrapWidth) / 2;
-            const deltaPx = card2RightInWhy - wrapLeftInTrack + 16;
-            startX = Math.round((deltaPx / wrapWidth) * 565);
+            const svg = path.ownerSVGElement;
+            const matrix = svg?.getScreenCTM();
+            if (deckEl && matrix) {
+                const point = svg.createSVGPoint();
+                const capRadius = 15 * Math.abs(matrix.a);
+                point.x = deckEl.getBoundingClientRect().left + card2.offsetLeft + card2Width + capRadius + winWidth * 0.2;
+                point.y = matrix.f + 24 * matrix.d;
+                startX = point.matrixTransform(matrix.inverse()).x;
+            }
         } else {
             const distancePx = winWidth + gapPx + Math.max(0, (winWidth - wrapWidth) / 2);
             startX = Math.round((-distancePx / wrapWidth) * 565 + 24);
@@ -1927,6 +1932,31 @@ function clearCarouselSelection() {
 
         horizLen = Math.max(10, 380 - startX);
         path.style.strokeDasharray = `${pathLength} ${pathLength}`;
+
+        // Keep the artwork above the existing connector at every desktop size.
+        const bridge = document.getElementById('engineered-bridge');
+        const track = document.getElementById('why-process-track');
+        const svg = path.ownerSVGElement;
+        const matrix = svg?.getScreenCTM();
+        if (bridge && track && matrix) {
+            const point = svg.createSVGPoint();
+            point.y = 24;
+            const lineY = point.matrixTransform(matrix).y - track.getBoundingClientRect().top;
+            bridge.style.top = `${lineY - bridge.offsetHeight / 2}px`;
+            const cutout = document.getElementById('process-content-cutout');
+            if (cutout) {
+                const rect = bridge.getBoundingClientRect();
+                const left = svg.createSVGPoint();
+                const right = svg.createSVGPoint();
+                left.x = rect.left - 32;
+                right.x = rect.right + 32;
+                const inverse = matrix.inverse();
+                const start = left.matrixTransform(inverse).x;
+                const end = right.matrixTransform(inverse).x;
+                cutout.setAttribute('x', start);
+                cutout.setAttribute('width', end - start);
+            }
+        }
 
         return { startX, horizLen, pathLength };
     }
@@ -1957,7 +1987,7 @@ function clearCarouselSelection() {
 
         let bestLen = 0;
         for (let i = 0; i < yToLengthTable.length; i++) {
-            if (yToLengthTable[i].y <= targetSvgY) {
+            if (yToLengthTable[i].maxSoFar <= targetSvgY) {
                 bestLen = yToLengthTable[i].len - horizLen;
             }
         }
@@ -1978,6 +2008,9 @@ function clearCarouselSelection() {
         const track = document.getElementById('why-process-track');
         const whyMain = document.getElementById('why-main-stage');
         const path = document.getElementById('process-line-path');
+        const bridgeRows = Array.from(document.querySelectorAll('.engineered-bridge-row'));
+        gsap.set(bridgeRows, { clearProps: 'transform,opacity,visibility' });
+        resetEngineeredBridge(gsap);
 
         if (!shouldRunPinnedDeal()) {
             if (track) gsap.set(track, { clearProps: 'x,transform' });
@@ -2032,20 +2065,21 @@ function clearCarouselSelection() {
 
         const res = calibratePathStartX();
         buildSampleTable();
+        const horizontalDistance = () => document.getElementById('process')?.offsetLeft || window.innerWidth * 2.2;
 
         if (path) {
             gsap.set(path, { opacity: 0 });
             path.style.strokeDashoffset = res.pathLength;
         }
 
-        // Pinned Horizontal Scrub: Why -> Process (Direct 1:1 linear scroll without double-smoothing bounce)
+        // Ease the horizontal sequence into each scroll position.
         const dealTL = gsap.timeline({
             scrollTrigger: {
                 trigger: wrapper,
                 start: 'top top',
-                end: '+=2000',
+                end: () => `+=${Math.round(horizontalDistance() * 1.35)}`,
                 pin: true,
-                scrub: true,
+                scrub: prefersReducedMotion ? true : 0.65,
                 invalidateOnRefresh: true,
                 onRefresh: () => {
                     calibratePathStartX();
@@ -2059,10 +2093,10 @@ function clearCarouselSelection() {
         // Stage 1: Rest Window for cards exploration at center
         dealTL.to({}, { duration: 0.4 });
 
-        // Stage 2: Why section slides smoothly to the left, through the 60vw space into Process
+        // Stage 2: Reveal the statement ribbon along the connector, then arrive at Process.
         if (track) {
             dealTL.to(track, {
-                x: '-160vw',
+                x: () => -horizontalDistance(),
                 ease: 'none',
                 duration: 2.0
             });
@@ -2077,9 +2111,11 @@ function clearCarouselSelection() {
             .to(path, {
                 strokeDashoffset: () => pathLength - horizLen,
                 ease: 'none',
-                duration: 2.0
+                duration: 1.1
             }, '<');
         }
+
+        animateEngineeredBridge({ gsap, timeline: dealTL, horizontalDistance, reducedMotion: prefersReducedMotion });
 
         // Stage 3: Short buffer before unpinning cleanly into Process section
         dealTL.to({}, { duration: 0.3 });
@@ -2357,6 +2393,10 @@ function clearCarouselSelection() {
     let targetLengthToDraw = 0;
     let currentLengthToDraw = 0;
 
+    function isDealScrubbing(trigger) {
+        return trigger && (trigger.isActive || trigger.getTween()?.isActive());
+    }
+
     function calcTargetProgress() {
         const feed = document.querySelector('.process-editorial-feed') || svgWrap;
         const processSec = document.getElementById('process') || svgWrap;
@@ -2380,7 +2420,7 @@ function clearCarouselSelection() {
         const metrics = window.__getPathMetrics ? window.__getPathMetrics() : { pathLength: 3600, horizLen: 1200, getVerticalLengthForY: () => 0 };
         const { pathLength, horizLen, getVerticalLengthForY } = metrics;
 
-        if (dealST && dealST.isActive) {
+        if (isDealScrubbing(dealST)) {
             // GSAP dealTL is actively scrubbing during Why pin
             const curOffset = parseFloat(path.style.strokeDashoffset);
             if (!isNaN(curOffset)) {
@@ -2392,7 +2432,10 @@ function clearCarouselSelection() {
         if (dealST && dealST.progress >= 1) {
             // Pinned transition completed -> user scrolling down through Process
             path.style.opacity = '1';
-            const extra = getVerticalLengthForY(targetSvgY);
+            const verticalScroll = Math.max(0, (smoother?.scrollTop() ?? window.scrollY) - dealST.end);
+            const svgScaleY = Math.abs(path.ownerSVGElement.getScreenCTM()?.d || 1);
+            const processSvgY = 24 + Math.min(901, verticalScroll / svgScaleY);
+            const extra = getVerticalLengthForY(processSvgY);
             targetLengthToDraw = horizLen + extra;
         } else if (dealST && dealST.progress <= 0) {
             // Above Why section
@@ -2419,7 +2462,7 @@ function clearCarouselSelection() {
         const metrics = window.__getPathMetrics ? window.__getPathMetrics() : { pathLength: 3600 };
         const pathLen = metrics.pathLength || 3600;
 
-        if (!dealST || !dealST.isActive) {
+        if (!isDealScrubbing(dealST)) {
             currentLengthToDraw += (targetLengthToDraw - currentLengthToDraw) * 0.15;
             if (Math.abs(targetLengthToDraw - currentLengthToDraw) < 0.5) {
                 currentLengthToDraw = targetLengthToDraw;

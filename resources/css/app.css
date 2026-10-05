@@ -1940,6 +1940,29 @@ body:not(.hero-active) .hero-services-stage {
 /* =============================================
    WHY & PROCESS INTEGRATED HORIZONTAL TRACK
    ============================================= */
+.engineered-bridge {
+    display: none;
+}
+
+@media (min-width: 992px) {
+    .engineered-bridge {
+        display: flex;
+        position: absolute;
+        left: 124vw;
+        top: 130px;
+        width: 150vw;
+        z-index: 3;
+        pointer-events: none;
+    }
+
+    .engineered-bridge-row {
+        display: block;
+        width: 100%;
+        height: auto;
+        overflow: visible;
+    }
+}
+
 .why-process-track-wrapper {
     position: relative;
     width: 100%;
@@ -1948,10 +1971,11 @@ body:not(.hero-active) .hero-services-stage {
 }
 
 .why-process-track {
+    --why-process-gap: 182vw;
     display: flex;
     flex-direction: row;
     align-items: flex-start;
-    width: calc(200vw + 60vw);
+    width: calc(200vw + var(--why-process-gap));
     position: relative;
     background: #f0f0f5;
     will-change: transform;
@@ -1969,7 +1993,7 @@ body:not(.hero-active) .hero-services-stage {
         overflow: visible;
         background: #f0f0f5;
         box-sizing: border-box;
-        margin-right: 60vw;
+        margin-right: var(--why-process-gap);
     }
 
     .why-process-track > .process {
