@@ -1,6 +1,14 @@
 // Every animated wrapper contains the unchanged vector paths from Group 3125.
 import { animateStatementEffects, resetStatementEffects } from './engineered-bridge-effects';
+const entranceTimelines = [];
+// In-memory state lasts until reload, including responsive timeline rebuilds.
+const playedParts = new Set();
 export function resetEngineeredBridge(gsap) {
+    for (const timeline of entranceTimelines) {
+        timeline.scrollTrigger?.kill();
+        timeline.kill();
+    }
+    entranceTimelines.length = 0;
     const statement = document.getElementById('bridge-statement');
     if (!statement) return;
     gsap.set(statement.querySelectorAll('[data-bridge-part]'), { clearProps: 'all' });
@@ -8,17 +16,17 @@ export function resetEngineeredBridge(gsap) {
     resetStatementEffects(gsap, statement);
 }
 
-export function animateEngineeredBridge({ gsap, timeline, horizontalDistance, reducedMotion }) {
+export function animateEngineeredBridge({ gsap, scrollTween, reducedMotion }) {
     const statement = document.getElementById('bridge-statement');
     const bridge = document.getElementById('engineered-bridge');
     if (!statement || !bridge || reducedMotion) return;
 
     const viewBox = statement.viewBox.baseVal;
-    const scale = statement.clientWidth / viewBox.width;
     const parts = Array.from(statement.querySelectorAll('[data-bridge-part]'));
     const compoundText = statement.querySelector('#bridge-we-craft-original');
-    let compoundTextEnd = 0;
     const timings = new Map();
+    const timelines = new Map();
+    const settledTimelines = [];
     gsap.set(compoundText, { opacity: 0 });
     const rotations = {
         'prototype-label': 5,
@@ -35,16 +43,31 @@ export function animateEngineeredBridge({ gsap, timeline, horizontalDistance, re
             bounds.width = Number(part.dataset.bridgeBoundsWidth);
         }
         const kind = part.dataset.bridgeKind;
-        const entryDistance = bridge.offsetLeft + (bounds.x - viewBox.x) * scale - window.innerWidth * 0.96;
-        const entryTime = 0.4 + Math.max(0, entryDistance / horizontalDistance()) * 2;
         const name = part.dataset.bridgePart;
+        const isPourPart = ['fluid-label', 'systems-label', 'fluid-systems-connector'].includes(name);
+        const entryX = isPourPart ? statement.querySelector('#bridge-fluid-label').getBBox().x : bounds.x;
+        // The track scrubs; individual entrances play in seconds once they are in view.
+        const alreadyPlayed = playedParts.has(name);
+        const timeline = gsap.timeline(alreadyPlayed ? { paused: true } : {
+            scrollTrigger: {
+                trigger: bridge,
+                containerAnimation: scrollTween,
+                horizontal: true,
+                start: () => `left+=${(entryX - viewBox.x) * statement.clientWidth / viewBox.width} 70%`,
+                toggleActions: 'play none none none',
+                once: true,
+                onEnter: () => playedParts.add(name),
+                invalidateOnRefresh: true,
+            },
+        });
+        entranceTimelines.push(timeline);
+        if (alreadyPlayed) settledTimelines.push(timeline);
+        timelines.set(name, timeline);
         const staticEntrance = ['flower-icon', 'fluid-label', 'systems-label', 'fluid-systems-connector'].includes(name);
-        const duration = staticEntrance ? 0.08 : name === 'production-label' ? 0.15 : name === 'effortlessly-text' ? 0.3 : kind === 'text' ? 0.16 : 0.22;
-        // Finish every entrance within the horizontal movement, even for the final words.
-        const startTime = Math.min(2.4 - duration, entryTime);
-        timings.set(name, startTime);
+        const duration = staticEntrance ? 0.15 : name === 'production-label' ? 0.8 : name === 'effortlessly-text' ? 0.9 : kind === 'text' ? 0.6 : 0.8;
+        const startTime = 0;
+        timings.set(name, 0);
         if (name === 'scale-label') continue;
-        if (part.dataset.bridgeBoundsX) compoundTextEnd = Math.max(compoundTextEnd, startTime + duration);
         gsap.set(part, {
             transformOrigin: '50% 50%',
             smoothOrigin: false,
@@ -52,7 +75,7 @@ export function animateEngineeredBridge({ gsap, timeline, horizontalDistance, re
         timeline.fromTo(part, {
             opacity: 0,
             x: name === 'engineered-label' ? -12 : name === 'effortlessly-text' ? 20 : 0,
-            y: staticEntrance || name === 'effortlessly-text' ? 0 : name === 'production-label' ? -12 : kind === 'text' ? 4 : 10,
+            y: staticEntrance || name === 'effortlessly-text' ? 0 : name === 'production-label' ? -20 : kind === 'text' ? 18 : 16,
             scale: staticEntrance || kind === 'text' ? 1 : name === 'production-label' ? 1.15 : 0.94,
             rotation: rotations[part.dataset.bridgePart] || 0,
         }, {
@@ -62,13 +85,11 @@ export function animateEngineeredBridge({ gsap, timeline, horizontalDistance, re
             scale: 1,
             rotation: 0,
             duration,
-            ease: 'power2.out',
+            ease: staticEntrance ? 'power2.out' : kind === 'text' ? 'back.out(1.08)' : 'back.out(1.15)',
         }, startTime);
     }
 
-    // Chrome rasterizes clipped text slightly differently. Restore the unchanged compound
-    // path once both words settle, so the resting artwork matches the source pixel-for-pixel.
-    timeline.set(compoundText, { opacity: 1 }, compoundTextEnd);
-    timeline.set(parts.filter(part => part.dataset.bridgeBoundsX), { opacity: 0 }, compoundTextEnd);
-    animateStatementEffects({ gsap, timeline, statement, timings });
+    animateStatementEffects({ gsap, timelines, statement, timings });
+    // Restore completed effects only after their entire sequence has been assembled.
+    for (const timeline of settledTimelines) timeline.progress(1).pause();
 }

@@ -70,9 +70,16 @@ $processPhases = [
                     <mask id="process-tail-mask" maskUnits="userSpaceOnUse" x="-20000" y="-20000" width="40000" height="40000" style="mask-type: luminance">
                         <rect x="-20000" y="-20000" width="40000" height="40000" fill="url(#process-tail-fade)" />
                     </mask>
+                    <linearGradient id="process-start-fade" x1="0" y1="0" x2="1" y2="0">
+                        <stop offset="0" stop-color="black" />
+                        <stop offset="0.4" stop-color="#666666" />
+                        <stop offset="0.8" stop-color="#dddddd" />
+                        <stop offset="1" stop-color="white" />
+                    </linearGradient>
                     <mask id="process-content-mask" maskUnits="userSpaceOnUse" x="-20000" y="-20000" width="40000" height="40000" style="mask-type: luminance">
                         <rect x="-20000" y="-20000" width="40000" height="40000" fill="white" />
                         <rect id="process-content-cutout" x="0" y="-100" width="0" height="300" fill="black" />
+                        <rect id="process-start-fade-region" x="0" y="-100" width="0" height="300" fill="url(#process-start-fade)" />
                     </mask>
                 </defs>
                 <g mask="url(#process-tail-mask)">

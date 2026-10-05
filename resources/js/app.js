@@ -1894,6 +1894,7 @@ function clearCarouselSelection() {
         if (!isHorizontalTrack) {
             verticalEndY = 925;
             document.getElementById('process-content-cutout')?.setAttribute('width', '0');
+            document.getElementById('process-start-fade-region')?.setAttribute('width', '0');
             path.setAttribute('d', `M 467.332 65.742 C 454.431 127.953 404.689 176.83 342.376 182.085 L 114.38 201.314 C 89.7562 203.391 66.5806 213.818 48.6935 230.868 C -13.312 289.973 14.502 394.256 97.7059 414.631 L 505.918 514.595 C 512.476 516.201 518.697 518.955 524.295 522.729 C 573.667 556.018 545.675 633.188 486.442 627.082 L 127.407 590.071 C 108.352 588.107 89.2368 593.184 73.668 604.345 C 11.7091 648.76 43.1302 746.523 119.364 746.523 H 150.72 C 201.364 746.523 241.681 788.937 239.117 839.515 L 234.832 924.023`);
             try {
                 pathLength = path.getTotalLength() || 2600;
@@ -1975,6 +1976,12 @@ function clearCarouselSelection() {
                 const end = right.matrixTransform(matrix.inverse()).x;
                 cutout.setAttribute('x', -20000);
                 cutout.setAttribute('width', Math.max(0, end + 20000));
+                // Fade from transparent to solid over 80 screen pixels after the word.
+                const fadeRegion = document.getElementById('process-start-fade-region');
+                if (fadeRegion) {
+                    fadeRegion.setAttribute('x', end);
+                    fadeRegion.setAttribute('width', 80 / Math.abs(matrix.a || 1));
+                }
             }
         }
 
@@ -2110,14 +2117,18 @@ function clearCarouselSelection() {
             path.style.strokeDashoffset = res.pathLength;
         }
 
-        // Ease the horizontal sequence into each scroll position.
+        // Budget scroll separately for card exploration, travel, and the Process arrival.
+        // The 2-unit movement occupies 4000px of the 2.7-unit timeline.
+        const horizontalScrollBudget = 4000;
+        const cardHoldScrollBudget = 800;
+        const arrivalScrollBudget = 600;
         const dealTL = gsap.timeline({
             scrollTrigger: {
                 trigger: wrapper,
                 start: 'top top',
-                end: () => `+=${Math.round(horizontalDistance() * 1.35)}`,
+                end: () => `+=${cardHoldScrollBudget + horizontalScrollBudget + arrivalScrollBudget}`,
                 pin: true,
-                scrub: prefersReducedMotion ? true : 0.65,
+                scrub: prefersReducedMotion ? true : 0.6,
                 invalidateOnRefresh: true,
                 onRefresh: () => {
                     calibratePathStartX();
@@ -2127,17 +2138,29 @@ function clearCarouselSelection() {
         });
 
         dealScrollTrigger = dealTL.scrollTrigger;
+        if (!prefersReducedMotion) {
+            // Respond quickly to input, leaving only a short, soft catch-up after it stops.
+            const catchUpTween = dealScrollTrigger.getTween();
+            if (catchUpTween) {
+                catchUpTween.vars.ease = 'power2.out';
+                catchUpTween.invalidate();
+            }
+        }
 
         // Stage 1: Rest Window for cards exploration at center
         dealTL.to({}, { duration: 0.4 });
 
         // Stage 2: Reveal the statement ribbon along the connector, then arrive at Process.
+        let horizontalTween;
         if (track) {
-            dealTL.to(track, {
+            horizontalTween = gsap.to(track, {
                 x: () => -horizontalDistance(),
                 ease: 'none',
-                duration: 2.0
+                duration: 2.0,
             });
+            dealTL.add(horizontalTween, 0.4);
+            // Container triggers use this nested tween's movement and the owning pin trigger.
+            horizontalTween.scrollTrigger = dealTL.scrollTrigger;
         }
 
         if (path) {
@@ -2153,7 +2176,7 @@ function clearCarouselSelection() {
             }, '<');
         }
 
-        animateEngineeredBridge({ gsap, timeline: dealTL, horizontalDistance, reducedMotion: prefersReducedMotion });
+        if (horizontalTween) animateEngineeredBridge({ gsap, scrollTween: horizontalTween, reducedMotion: prefersReducedMotion });
 
         // The paper grid travels slowly behind the artwork, then rests with the page.
         if (!prefersReducedMotion) {
