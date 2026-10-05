@@ -35,16 +35,15 @@ foreach ($items as $svc) {
         'row2' => mb_strtoupper($r2),
     ];
 }
+
+$denseItems = count($formattedItems) > 0 
+    ? array_merge(...array_fill(0, max(3, (int)ceil(18 / count($formattedItems))), $formattedItems))
+    : $formattedItems;
 @endphp
 
 <div class="services-marquee-wrapper" id="services">
     <section class="services-marquee-strip">
     <div class="services-marquee-inner">
-        {{-- Anchored Left Title --}}
-        <div class="services-marquee-header">
-            <span class="services-marquee-title">Services</span>
-        </div>
-
         {{-- Scrolling Marquee Viewport with Dual-Edge Gradient Fades --}}
         <div class="services-marquee-viewport">
             {{-- Left & Right Vignette / Gradient Fade Edges --}}
@@ -54,14 +53,9 @@ foreach ($items as $svc) {
             <div class="services-marquee-track">
                 {{-- Primary Group --}}
                 <div class="services-marquee-group">
-                    @foreach($formattedItems as $item)
+                    @foreach($denseItems as $item)
                         <div class="services-marquee-item">
-                            <span class="services-marquee-text">
-                                <span class="block leading-[1.1]">{{ $item['row1'] }}</span>
-                                @if(!empty($item['row2']))
-                                    <span class="block leading-[1.1]">{{ $item['row2'] }}</span>
-                                @endif
-                            </span>
+                            <span class="services-marquee-text">{{ $item['row1'] }}{{ !empty($item['row2']) ? ' ' . $item['row2'] : '' }}</span>
                         </div>
                         <span class="services-marquee-dot" aria-hidden="true"></span>
                     @endforeach
@@ -69,14 +63,9 @@ foreach ($items as $svc) {
 
                 {{-- Duplicate Group for Seamless Infinite Loop --}}
                 <div class="services-marquee-group" aria-hidden="true">
-                    @foreach($formattedItems as $item)
+                    @foreach($denseItems as $item)
                         <div class="services-marquee-item">
-                            <span class="services-marquee-text">
-                                <span class="block leading-[1.1]">{{ $item['row1'] }}</span>
-                                @if(!empty($item['row2']))
-                                    <span class="block leading-[1.1]">{{ $item['row2'] }}</span>
-                                @endif
-                            </span>
+                            <span class="services-marquee-text">{{ $item['row1'] }}{{ !empty($item['row2']) ? ' ' . $item['row2'] : '' }}</span>
                         </div>
                         <span class="services-marquee-dot" aria-hidden="true"></span>
                     @endforeach
@@ -128,6 +117,42 @@ foreach ($items as $svc) {
 @endphp
 
 <section class="service-explorer" aria-labelledby="service-explorer-title">
+    {{-- Left Vertical Marquee --}}
+    <div class="services-vmarquee services-vmarquee-left" aria-hidden="true">
+        <div class="services-vmarquee-track services-vmarquee-track-up">
+            <div class="services-vmarquee-group">
+                @foreach($denseItems as $item)
+                    <span class="services-vmarquee-text">{{ $item['row1'] }}{{ !empty($item['row2']) ? ' ' . $item['row2'] : '' }}</span>
+                    <span class="services-vmarquee-dot"></span>
+                @endforeach
+            </div>
+            <div class="services-vmarquee-group" aria-hidden="true">
+                @foreach($denseItems as $item)
+                    <span class="services-vmarquee-text">{{ $item['row1'] }}{{ !empty($item['row2']) ? ' ' . $item['row2'] : '' }}</span>
+                    <span class="services-vmarquee-dot"></span>
+                @endforeach
+            </div>
+        </div>
+    </div>
+
+    {{-- Right Vertical Marquee --}}
+    <div class="services-vmarquee services-vmarquee-right" aria-hidden="true">
+        <div class="services-vmarquee-track services-vmarquee-track-down">
+            <div class="services-vmarquee-group">
+                @foreach($denseItems as $item)
+                    <span class="services-vmarquee-text">{{ $item['row1'] }}{{ !empty($item['row2']) ? ' ' . $item['row2'] : '' }}</span>
+                    <span class="services-vmarquee-dot"></span>
+                @endforeach
+            </div>
+            <div class="services-vmarquee-group" aria-hidden="true">
+                @foreach($denseItems as $item)
+                    <span class="services-vmarquee-text">{{ $item['row1'] }}{{ !empty($item['row2']) ? ' ' . $item['row2'] : '' }}</span>
+                    <span class="services-vmarquee-dot"></span>
+                @endforeach
+            </div>
+        </div>
+    </div>
+
     <div class="service-explorer-inner">
         <div class="service-explorer-heading">
             <div>
@@ -202,6 +227,42 @@ foreach ($items as $svc) {
         </div>
     </div>
 </section>
+
+{{-- Bottom Services Marquee Strip --}}
+<div class="services-marquee-wrapper services-marquee-bottom-wrapper">
+    <section class="services-marquee-strip">
+        <div class="services-marquee-inner">
+            {{-- Scrolling Marquee Viewport with Dual-Edge Gradient Fades --}}
+            <div class="services-marquee-viewport">
+                {{-- Left & Right Vignette / Gradient Fade Edges --}}
+                <div class="services-fade-edge services-fade-left" aria-hidden="true"></div>
+                <div class="services-fade-edge services-fade-right" aria-hidden="true"></div>
+
+                <div class="services-marquee-track services-marquee-track-reverse">
+                    {{-- Primary Group --}}
+                    <div class="services-marquee-group">
+                        @foreach($denseItems as $item)
+                            <div class="services-marquee-item">
+                                <span class="services-marquee-text">{{ $item['row1'] }}{{ !empty($item['row2']) ? ' ' . $item['row2'] : '' }}</span>
+                            </div>
+                            <span class="services-marquee-dot" aria-hidden="true"></span>
+                        @endforeach
+                    </div>
+
+                    {{-- Duplicate Group for Seamless Infinite Loop --}}
+                    <div class="services-marquee-group" aria-hidden="true">
+                        @foreach($denseItems as $item)
+                            <div class="services-marquee-item">
+                                <span class="services-marquee-text">{{ $item['row1'] }}{{ !empty($item['row2']) ? ' ' . $item['row2'] : '' }}</span>
+                            </div>
+                            <span class="services-marquee-dot" aria-hidden="true"></span>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
 
 <script type="application/json" id="odds-services-data">{!! json_encode($serviceDetails, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) !!}</script>
 @push('modals')
