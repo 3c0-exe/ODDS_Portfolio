@@ -14,7 +14,7 @@ class OddsTeam
                 'github' => 'https://github.com/3c0-exe',
                 'pfp' => 'https://api.dicebear.com/10.x/pixelbot/svg?seed=3c0-exe',
                 'real_photo' => asset('storage/odds/team/Jerico_Sanchez.jpg'),
-                'quip' => 'asleep or yearning.. probably both',
+                'quip' => 'the meeting could’ve been a message to me',
                 'positions' => ['Co-Founder', 'Software Developer'],
                 'awards' => ['Cum Laude', 'Best in Capstone (Lead Dev)'],
             ],
